@@ -5,9 +5,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.keygen.KeyGenerators;
-import org.springframework.stereotype.Component;
 
-@Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AESUtil {
 

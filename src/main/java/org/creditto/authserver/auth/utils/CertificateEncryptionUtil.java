@@ -7,8 +7,7 @@ import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
-import static org.creditto.authserver.auth.constants.AlgorithmConstants.RSA;
-import static org.creditto.authserver.auth.constants.AlgorithmConstants.SHA256_WITH_RSA;
+import static org.creditto.authserver.auth.constants.AlgorithmConstants.*;
 
 // 인정서 암호화 Util
 @Component
@@ -32,13 +31,14 @@ public class CertificateEncryptionUtil {
      * @param salt 암호화에 사용될 salt
      * @return Base64로 인코딩된 암호
      */
-    public String encryptPrivateKey(PrivateKey privateKey, String simplePassword, String salt) {
+    public String encryptPrivateKey(PrivateKey privateKey, String simplePassword, String salt) throws NoSuchAlgorithmException {
         byte[] privateKeyEncoded = privateKey.getEncoded();
 
         // 간편비밀번호 암호화
+        String extendedSimplePassword = extendSimplePassword(simplePassword);
 
         // AES
-        byte[] encrypted = AESUtil.encrypt(privateKeyEncoded, simplePassword, salt);
+        byte[] encrypted = AESUtil.encrypt(privateKeyEncoded, extendedSimplePassword, salt);
 
         return Base64.getEncoder().encodeToString(encrypted);
     }
@@ -50,17 +50,25 @@ public class CertificateEncryptionUtil {
      * @param salt 복호화에 사용될 salt
      * @return 복호화된 PrivateKey
      */
-    public PrivateKey decryptPrivateKey(String encryptedKey, String simplePassword, String salt) throws Exception{
+    public PrivateKey decryptPrivateKey(String encryptedKey, String simplePassword, String salt) throws GeneralSecurityException{
         byte[] encrypted = Base64.getDecoder().decode(encryptedKey);
 
         // 간편 비밀번호 암호화
-        byte[] decrypted = AESUtil.decrypt(encrypted, simplePassword, salt);
+        String extendedSimplePassword = extendSimplePassword(simplePassword);
 
-        KeyFactory keyFactory = KeyFactory.getInstance(RSA);
+        try {
+            byte[] decrypted = AESUtil.decrypt(encrypted, extendedSimplePassword, salt);
 
-        return keyFactory.generatePrivate(
-                new PKCS8EncodedKeySpec(decrypted)
-        );
+            KeyFactory keyFactory = KeyFactory.getInstance(RSA);
+
+            return keyFactory.generatePrivate(
+                    new PKCS8EncodedKeySpec(decrypted)
+            );
+        } catch (Exception e) {
+            throw new IllegalArgumentException("간편비밀번호가 일치하지 않습니다");
+        }
+
+
     }
 
     /**
@@ -69,7 +77,7 @@ public class CertificateEncryptionUtil {
      * @param data 인증서
      * @return 서명
      */
-    public String sign(PrivateKey privateKey, String data) throws Exception {
+    public String sign(PrivateKey privateKey, String data) throws GeneralSecurityException {
         Signature signature = Signature.getInstance(SHA256_WITH_RSA);
         signature.initSign(privateKey);
         signature.update(data.getBytes(StandardCharsets.UTF_8));
@@ -84,11 +92,17 @@ public class CertificateEncryptionUtil {
      * @param signatureStr 서명
      * @return 검증결과
      */
-    public boolean verify(PublicKey publicKey, String data, String signatureStr) throws Exception{
+    public boolean verify(PublicKey publicKey, String data, String signatureStr) throws GeneralSecurityException{
         Signature signature = Signature.getInstance(SHA256_WITH_RSA);
         signature.initVerify(publicKey);
         signature.update(data.getBytes(StandardCharsets.UTF_8));
         byte[] signBytes = Base64.getDecoder().decode(signatureStr);
         return signature.verify(signBytes);
+    }
+
+    private String extendSimplePassword(String simplePassword) throws NoSuchAlgorithmException {
+        MessageDigest messageDigest = MessageDigest.getInstance(SHA256);
+        byte[] digested = messageDigest.digest(simplePassword.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(digested);
     }
 }

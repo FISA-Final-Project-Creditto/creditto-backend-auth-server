@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -60,13 +61,14 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // 엔티티 수정 시각 자동 저장
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @PostPersist
     protected void onCreate() {
-        this.externalUserId = UUID.fromString(String.valueOf(this.id)).toString();
+        if (this.externalUserId == null) {
+            this.externalUserId = UUID.randomUUID().toString();
+        }
     }
 }
