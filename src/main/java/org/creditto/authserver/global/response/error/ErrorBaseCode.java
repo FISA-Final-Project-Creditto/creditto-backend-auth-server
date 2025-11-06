@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
