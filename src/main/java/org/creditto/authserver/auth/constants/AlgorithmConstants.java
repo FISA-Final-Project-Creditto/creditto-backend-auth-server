@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public abstract class AlgorithmConstants {
+public final class AlgorithmConstants {
 
     public static final String RSA = "RSA";
     public static final String SHA256 = "SHA-256";
