@@ -28,4 +28,8 @@ public class ClientScope {
                 .scope(scope)
                 .build();
     }
+
+    public void updateClient(OAuth2RegisteredClient client) {
+        this.client = client;
+    }
 }

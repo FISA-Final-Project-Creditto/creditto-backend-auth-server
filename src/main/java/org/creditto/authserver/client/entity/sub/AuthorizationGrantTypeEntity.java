@@ -27,4 +27,8 @@ public class AuthorizationGrantTypeEntity {
                 .grantType(grantType)
                 .build();
     }
+
+    public void updateClient(OAuth2RegisteredClient client) {
+        this.client = client;
+    }
 }

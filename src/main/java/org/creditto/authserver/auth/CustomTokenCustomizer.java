@@ -25,7 +25,7 @@ public class CustomTokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingC
         OAuth2TokenType tokenType = context.getTokenType();
 
         // Access Token에만 Claim 추가
-        if (!tokenType.getValue().equals(ACCESS_TOKEN)) {
+        if (tokenType.getValue().equals(ACCESS_TOKEN)) {
             if (authentication instanceof CertificateAuthenticationToken certToken) {
                 User user = (User) certToken.getPrincipal();
                 List<String> authorities = user.getRoles().stream().toList();

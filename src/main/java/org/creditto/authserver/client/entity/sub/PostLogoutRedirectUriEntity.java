@@ -28,4 +28,8 @@ public class PostLogoutRedirectUriEntity {
                 .postLogoutRedirectUri(postLogoutRedirectUri)
                 .build();
     }
+
+    public void updateClient(OAuth2RegisteredClient client) {
+        this.client = client;
+    }
 }

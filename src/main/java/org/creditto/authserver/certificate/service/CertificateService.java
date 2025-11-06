@@ -29,17 +29,7 @@ public class CertificateService {
 
         User user = certificate.getUser();
 
-        // 인증서 유효성 검증
-
-        try {
-            PrivateKey privateKey = encryptionUtil.decryptPrivateKey(
-                    certificate.getPrivateKey(), simplePassword, user.getSimplePasswordSalt()
-            );
-
-            return certificate;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return certificate;
     }
 
 }

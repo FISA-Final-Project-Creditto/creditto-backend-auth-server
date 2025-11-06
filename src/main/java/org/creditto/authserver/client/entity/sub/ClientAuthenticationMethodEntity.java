@@ -28,4 +28,8 @@ public class ClientAuthenticationMethodEntity {
                 .authenticationMethod(authenticationMethod)
                 .build();
     }
+
+    public void updateClient(OAuth2RegisteredClient client) {
+        this.client = client;
+    }
 }

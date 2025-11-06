@@ -28,4 +28,8 @@ public class RedirectUriEntity {
                 .redirectUri(redirectUri)
                 .build();
     }
+
+    public void updateClient(OAuth2RegisteredClient client) {
+        this.client = client;
+    }
 }

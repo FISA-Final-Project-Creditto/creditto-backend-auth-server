@@ -134,21 +134,26 @@ public class OAuth2RegisteredClient {
 
     public void addClientAuthenticationMethod(ClientAuthenticationMethodEntity method) {
         this.clientAuthenticationMethods.add(method);
+        method.updateClient(this);
     }
 
     public void addAuthorizationGrantType(AuthorizationGrantTypeEntity grantType) {
         this.authorizationGrantTypes.add(grantType);
+        grantType.updateClient(this);
     }
 
     public void addRedirectUri(RedirectUriEntity redirectUri) {
         this.redirectUris.add(redirectUri);
+        redirectUri.updateClient(this);
     }
 
     public void addPostLogoutRedirectUri(PostLogoutRedirectUriEntity uri) {
         this.postLogoutRedirectUris.add(uri);
+        uri.updateClient(this);
     }
 
     public void addScope(ClientScope scope) {
         this.scopes.add(scope);
+        scope.updateClient(this);
     }
 }

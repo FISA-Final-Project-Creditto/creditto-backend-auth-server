@@ -85,11 +85,10 @@ public class AuthorizationServerConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/certificate/**").permitAll()
                         .requestMatchers("/api/client/**").permitAll()
-                        .requestMatchers("/oauth2/token").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/certificate/**", "/oauth2/token", "/api/client/**")
+                        .ignoringRequestMatchers("/api/certificate/**", "/api/client/**")
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(customAuthenticationEntryPoint)

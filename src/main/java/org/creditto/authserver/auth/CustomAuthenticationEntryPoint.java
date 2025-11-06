@@ -52,19 +52,24 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             String oauthErrorCode = auth2AuthenticationException.getError().getErrorCode();
 
             // 클라이언트 자격증명 실패
-            if (OAuth2ErrorCodes.INVALID_CLIENT.equals(oauthErrorCode)) {
-                log.warn("OAUTH2 ERROR : INVALID CLIENT");
-                errorBaseCode = ErrorBaseCode.OAUTH_INVALID_CLIENT_CREDENTIALS;
-            } else if (OAuth2ErrorCodes.UNAUTHORIZED_CLIENT.equals(oauthErrorCode)) {
-                log.warn("OAUTH2 ERROR : UNAUTHORIZED CLIENT");
-                errorBaseCode = ErrorBaseCode.OAUTH_UNAUTHORIZED;
-            } else if (OAuth2ErrorCodes.INVALID_GRANT.equals(oauthErrorCode)) {
-                log.warn("OAUTH2 ERROR : INVALID GRANT TYPE");
-                errorBaseCode = ErrorBaseCode.OAUTH_INVALID_GRANT_TYPE;
-            } else {
-                log.warn("ANONYMOUS OAUTH ERROR");
-                errorBaseCode = ErrorBaseCode.OAUTH_DEFAULT_UNAUTHORIZED;
-            }
+            errorBaseCode = switch (oauthErrorCode) {
+                case OAuth2ErrorCodes.INVALID_CLIENT -> {
+                    log.warn("OAUTH2 ERROR : INVALID CLIENT");
+                    yield ErrorBaseCode.OAUTH_INVALID_CLIENT_CREDENTIALS;
+                }
+                case OAuth2ErrorCodes.UNAUTHORIZED_CLIENT -> {
+                    log.warn("OAUTH2 ERROR : UNAUTHORIZED CLIENT");
+                    yield ErrorBaseCode.OAUTH_UNAUTHORIZED;
+                }
+                case OAuth2ErrorCodes.INVALID_GRANT -> {
+                    log.warn("OAUTH2 ERROR : INVALID GRANT TYPE");
+                    yield ErrorBaseCode.OAUTH_INVALID_GRANT_TYPE;
+                }
+                default -> {
+                    log.warn("ANONYMOUS OAUTH ERROR");
+                    yield ErrorBaseCode.OAUTH_DEFAULT_UNAUTHORIZED;
+                }
+            };
         }
         return errorBaseCode;
     }

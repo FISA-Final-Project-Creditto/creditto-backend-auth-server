@@ -26,7 +26,7 @@ public class JpaRegisteredClientRepositoryService implements RegisteredClientRep
 
     @Override
     public RegisteredClient findById(String id) {
-        return oAuth2RegisteredClientRepository.findById(Long.valueOf(id))
+        return oAuth2RegisteredClientRepository.findById(id)
                 .map(mapper::convertToRegisteredClient)
                 .orElseThrow(EntityNotFoundException::new);
     }
