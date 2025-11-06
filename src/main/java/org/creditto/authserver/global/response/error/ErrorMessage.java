@@ -10,6 +10,8 @@ public final class ErrorMessage {
      * NOT FOUND - 조회 실패
      */
     public static final String NOT_DEFINED_VALUE = "정의되지 않은 값입니다.";
+    public static final String FAILED_PARSE = "파싱 실패";
+    public static final String FAILED_SERIALIZED = "직렬화 실패";
 
     /**
      * INVALID - 유효하지 않음
