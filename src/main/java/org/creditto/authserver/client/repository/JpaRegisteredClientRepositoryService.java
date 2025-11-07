@@ -1,9 +1,9 @@
 package org.creditto.authserver.client.repository;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.creditto.authserver.client.entity.OAuth2RegisteredClient;
 import org.creditto.authserver.client.entity.RegisteredClientMapper;
+import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.stereotype.Service;
@@ -25,16 +25,18 @@ public class JpaRegisteredClientRepositoryService implements RegisteredClientRep
     }
 
     @Override
+    @Nullable
     public RegisteredClient findById(String id) {
         return oAuth2RegisteredClientRepository.findById(id)
                 .map(mapper::convertToRegisteredClient)
-                .orElseThrow(EntityNotFoundException::new);
+                .orElse(null);
     }
 
     @Override
+    @Nullable
     public RegisteredClient findByClientId(String clientId) {
         return oAuth2RegisteredClientRepository.findByClientId(clientId)
                 .map(mapper::convertToRegisteredClient)
-                .orElseThrow(EntityNotFoundException::new);
+                .orElse(null);
     }
 }

@@ -42,8 +42,8 @@ public class RsaKeyUtil {
 
         String pem = key
                 .replace(beginMarker, "")
-                .replaceAll("\\s", "")
-                .replace(endMarker, "");
+                .replace(endMarker, "")
+                .replaceAll("\\s+", "");
 
         return Base64.getDecoder().decode(pem);
     }

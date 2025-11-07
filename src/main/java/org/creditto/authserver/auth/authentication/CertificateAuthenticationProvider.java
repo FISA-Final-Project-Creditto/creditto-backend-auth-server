@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static org.creditto.authserver.global.response.error.ErrorMessage.CERTIFICATE_AUTH_FAILED;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class CertificateAuthenticationProvider implements AuthenticationProvider
 
         try {
             // 인증서 검증
-            Certificate certificate = certificateService.authenticateCertificate(serialNum, simplePassword);
+            Certificate certificate = certificateService.authenticateWithCertificate(serialNum, simplePassword);
 
             User user = certificate.getUser();
 
@@ -50,7 +52,7 @@ public class CertificateAuthenticationProvider implements AuthenticationProvider
         } catch (Exception e) {
             log.error("인증서 인증 중 오류 발생");
             throw new OAuth2AuthenticationException(
-                    new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR, "", null)
+                    new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR, CERTIFICATE_AUTH_FAILED, null)
             );
         }
     }

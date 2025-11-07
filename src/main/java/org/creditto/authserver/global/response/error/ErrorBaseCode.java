@@ -27,6 +27,7 @@ public enum ErrorBaseCode implements ErrorCode {
     OAUTH_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40101, "인증되지 않은 고객입니다."),
     OAUTH_INVALID_CLIENT_CREDENTIALS(HttpStatus.UNAUTHORIZED, 40102, "유효하지 않은 증명입니다."),
     OAUTH_INVALID_GRANT_TYPE(HttpStatus.UNAUTHORIZED, 40103, "유효하지 않은 Grant Type 입니다."),
+    INVALID_SIMPLE_PASSWORD(HttpStatus.UNAUTHORIZED, 40104, "잘못된 간편비밀번호입니다."),
 
 
     /**
@@ -39,11 +40,17 @@ public enum ErrorBaseCode implements ErrorCode {
      */
     NOT_FOUND_API(HttpStatus.NOT_FOUND, 404, "잘못된 API 요청입니다."),
     NOT_FOUND_ENTITY(HttpStatus.NOT_FOUND, 404, "대상을 찾을 수 없습니다."),
+    CERTIFICATE_NOT_FOUND(HttpStatus.NOT_FOUND, 40401, "인증서를 찾을 수 없습니다."),
 
     /**
      * 405 METHOD NOT ALLOWED - 허용되지 않은 메서드
      */
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 405, "잘못된 HTTP METHOD 요청입니다."),
+
+    /**
+     * 410 GONE - 리소스가 영구적으로 사용 불가능
+     */
+    CERTIFICATE_EXPIRED(HttpStatus.GONE, 410, "인증서가 만료되었습니다."),
 
     /**
      * 409 CONFLICT

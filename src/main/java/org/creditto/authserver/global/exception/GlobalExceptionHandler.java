@@ -90,6 +90,16 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 401 - InvalidSimplePasswordException
+     * 예외 내용 : 잘못된 간편비밀번호
+     */
+    @ExceptionHandler(InvalidSimplePasswordException.class)
+    public ResponseEntity<BaseResponse<?>> handleInvalidSimplePassword(final InvalidSimplePasswordException e) {
+        log.error("잘못된 간편비밀번호: {}", e.getMessage());
+        return ApiResponseUtil.failure(ErrorBaseCode.INVALID_SIMPLE_PASSWORD, e.getMessage());
+    }
+
+    /**
      * 403 - AccessDeniedException
      * 예외 내용: 사용자가 허가되지 않은 자원에 접근할 때 발생
      */
@@ -106,6 +116,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<BaseResponse<?>> handleEntityNotFoundException(final EntityNotFoundException e) {
         return ApiResponseUtil.failure(ErrorBaseCode.NOT_FOUND_ENTITY, e.getMessage());
+    }
+
+    /**
+     * 404 - CertificateNotFoundException
+     * 예외 내용 : 인증서를 찾을 수 없음
+     */
+    @ExceptionHandler(CertificateNotFoundException.class)
+    public ResponseEntity<BaseResponse<?>> handleCertificateNotFound(final CertificateNotFoundException e) {
+        log.error("인증서를 찾을 수 없음: {}", e.getMessage());
+        return ApiResponseUtil.failure(ErrorBaseCode.CERTIFICATE_NOT_FOUND, e.getMessage());
     }
 
     /**
@@ -135,6 +155,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<BaseResponse<?>> handleHttpRequestMethodNotSupportedException(final HttpRequestMethodNotSupportedException e) {
         logWarn(e);
         return ApiResponseUtil.failure(ErrorBaseCode.METHOD_NOT_ALLOWED);
+    }
+
+    /**
+     * 410 - CertificateExpiredException
+     * 예외 내용 : 인증서 만료
+     */
+    @ExceptionHandler(CertificateExpiredException.class)
+    public ResponseEntity<BaseResponse<?>> handleCertificateExpired(final CertificateExpiredException e) {
+        log.error("인증서 만료: {}", e.getMessage());
+        return ApiResponseUtil.failure(ErrorBaseCode.CERTIFICATE_EXPIRED, e.getMessage());
     }
 
     /**
@@ -180,6 +210,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<?>> handleServerException(final Exception e) {
+        logWarn(e);
+        return ApiResponseUtil.failure(ErrorBaseCode.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<BaseResponse<?>> handleCustomException(final CustomException e) {
         logWarn(e);
         return ApiResponseUtil.failure(ErrorBaseCode.INTERNAL_SERVER_ERROR);
     }
