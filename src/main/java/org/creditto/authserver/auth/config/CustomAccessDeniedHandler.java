@@ -1,4 +1,4 @@
-package org.creditto.authserver.auth;
+package org.creditto.authserver.auth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

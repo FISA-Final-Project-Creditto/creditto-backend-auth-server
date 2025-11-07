@@ -1,4 +1,4 @@
-package org.creditto.authserver.auth.config;
+package org.creditto.authserver.auth;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -122,8 +122,8 @@ public class OAuth2ClientInitializer {
 
                 // 토큰 설정
                 .tokenSettings(TokenSettings.builder()
-                        .accessTokenTimeToLive(Duration.ofHours(1))
-                        .refreshTokenTimeToLive(Duration.ofDays(7))
+                        .accessTokenTimeToLive(Duration.ofHours(30))
+                        .refreshTokenTimeToLive(Duration.ofDays(30))
                         .reuseRefreshTokens(false)
                         .build())
 
@@ -172,8 +172,8 @@ public class OAuth2ClientInitializer {
 
                 // 토큰 설정
                 .tokenSettings(TokenSettings.builder()
-                        .accessTokenTimeToLive(Duration.ofHours(1))
-                        .refreshTokenTimeToLive(Duration.ofDays(7))
+                        .accessTokenTimeToLive(Duration.ofHours(30))
+                        .refreshTokenTimeToLive(Duration.ofDays(30))
                         .reuseRefreshTokens(false)
                         .build())
 

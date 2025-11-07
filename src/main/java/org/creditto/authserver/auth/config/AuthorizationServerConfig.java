@@ -6,8 +6,6 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
-import org.creditto.authserver.auth.CustomAccessDeniedHandler;
-import org.creditto.authserver.auth.CustomAuthenticationEntryPoint;
 import org.creditto.authserver.auth.authentication.CertificateGrantAuthenticationConverter;
 import org.creditto.authserver.auth.authentication.CertificateGrantAuthenticationProvider;
 import org.creditto.authserver.auth.constants.ClaimConstants;
