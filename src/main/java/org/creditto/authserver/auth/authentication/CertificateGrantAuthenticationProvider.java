@@ -50,7 +50,9 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
         String clientId = certificateToken.getClientId();
         RegisteredClient registeredClient = registeredClientRepository.findByClientId(clientId);
         if (registeredClient == null) {
-            throw new IllegalArgumentException(INVALID_CLIENT + ": " + clientId);
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT, INVALID_CLIENT + ": " + clientId, null)
+            );
         }
 
         // 2. 인증서 기반 인증 수행

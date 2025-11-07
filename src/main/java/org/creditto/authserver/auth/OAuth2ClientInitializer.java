@@ -42,7 +42,7 @@ public class OAuth2ClientInitializer {
     @Value("${CORE_BANKING_SECRET}")
     private String coreBankingSecret;
 
-    @Value("${COREB_BANKING_NAME}")
+    @Value("${CORE_BANKING_NAME}")
     private String coreBankingName;
 
     @Value("${CORE_BANKING_URL}")
