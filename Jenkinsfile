@@ -39,6 +39,7 @@ pipeline {
                     '''
 				}
 
+				sh './gradlew test'
 				sh './gradlew bootJar'
 			}
 		}
