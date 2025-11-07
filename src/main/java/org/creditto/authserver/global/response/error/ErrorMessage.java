@@ -39,4 +39,11 @@ public final class ErrorMessage {
      * DENIED - 접근 거부
      */
     public static final String ACCESS_DENIED = "권한이 없습니다.";
+
+    /**
+     * OAUTH2 - OAuth2 관련 오류
+     */
+    public static final String INVALID_CLIENT = "유효하지 않은 클라이언트입니다.";
+    public static final String TOKEN_GENERATION_FAILED = "토큰 생성에 실패했습니다.";
+    public static final String CLIENT_NOT_FOUND = "클라이언트를 찾을 수 없습니다.";
 }

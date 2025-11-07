@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Builder
 public record UserResponse(
-        Long id,
+        String externalUserId,
         String name,
         LocalDate birthDate,
         String phoneNo,
@@ -15,7 +15,7 @@ public record UserResponse(
 ) {
     public static UserResponse from(User user) {
         return UserResponse.builder()
-                .id(user.getId())
+                .externalUserId(user.getExternalUserId())
                 .name(user.getName())
                 .birthDate(user.getBirthDate())
                 .phoneNo(user.getPhoneNo())

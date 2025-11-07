@@ -5,12 +5,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.creditto.authserver.global.response.BaseResponse;
 import org.creditto.authserver.global.response.error.ErrorBaseCode;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
@@ -39,20 +41,34 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     private void setResponse(HttpServletResponse response, ErrorBaseCode errorBaseCode) throws IOException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(String.valueOf(StandardCharsets.UTF_8));
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setStatus(errorBaseCode.getHttpStatus().value());
+
+        BaseResponse<?> errorResponse = BaseResponse.of(
+                errorBaseCode.getCode(),
+                errorBaseCode.getMessage()
+        );
+
         PrintWriter writer = response.getWriter();
-        writer.write(objectMapper.writeValueAsString(errorBaseCode));
+        writer.write(objectMapper.writeValueAsString(errorResponse));
     }
 
     private ErrorBaseCode getExceptionType(AuthenticationException authenticationException) {
         log.warn("인증 실패 : Type[{}], Message[{}]", authenticationException.getClass().getSimpleName(), authenticationException.getMessage());
-        ErrorBaseCode errorBaseCode = ErrorBaseCode.UNAUTHORIZED;
 
+        // InvalidBearerTokenException 처리 (JWT 토큰 검증 실패)
+        if (authenticationException instanceof InvalidBearerTokenException) {
+            log.error("유효하지 않은 Bearer 토큰: {}", authenticationException.getMessage());
+            return ErrorBaseCode.EXPIRED_TOKEN;
+        }
+
+        // OAuth2AuthenticationException 처리
         if (authenticationException instanceof OAuth2AuthenticationException auth2AuthenticationException) {
-            String oauthErrorCode = auth2AuthenticationException.getError().getErrorCode();
+            OAuth2Error error = auth2AuthenticationException.getError();
+            String oauthErrorCode = error.getErrorCode();
 
-            // 클라이언트 자격증명 실패
-            errorBaseCode = switch (oauthErrorCode) {
+            log.error("OAuth2 인증 실패 - error: {}, description: {}", oauthErrorCode, error.getDescription());
+
+            return switch (oauthErrorCode) {
                 case OAuth2ErrorCodes.INVALID_CLIENT -> {
                     log.warn("OAUTH2 ERROR : INVALID CLIENT");
                     yield ErrorBaseCode.OAUTH_INVALID_CLIENT_CREDENTIALS;
@@ -66,11 +82,13 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                     yield ErrorBaseCode.OAUTH_INVALID_GRANT_TYPE;
                 }
                 default -> {
-                    log.warn("ANONYMOUS OAUTH ERROR");
+                    log.warn("OAUTH2 ERROR : {}", oauthErrorCode);
                     yield ErrorBaseCode.OAUTH_DEFAULT_UNAUTHORIZED;
                 }
             };
         }
-        return errorBaseCode;
+
+        // 기타 인증 실패
+        return ErrorBaseCode.UNAUTHORIZED;
     }
 }
