@@ -39,7 +39,7 @@ pipeline {
                     '''
 				}
 
-				sh './gradlew build'
+				sh './gradlew bootJar'
 			}
 		}
 	}
