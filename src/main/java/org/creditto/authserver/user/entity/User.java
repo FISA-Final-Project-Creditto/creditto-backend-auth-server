@@ -2,6 +2,7 @@ package org.creditto.authserver.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.creditto.authserver.user.dto.UserRegisterRequest;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Table(name = "users")
+@Builder(access = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -38,15 +40,6 @@ public class User {
 
     private String countryCode;
 
-    /**
-     * 간편 비밀번호 (Encrypted By AES256)
-     */
-    @Column(length = 500)
-    private String simplePassword;
-
-    @Column(length = 100)
-    private String simplePasswordSalt;
-
     @Column(unique = true)
     private String externalUserId;
 
@@ -70,5 +63,14 @@ public class User {
         if (this.externalUserId == null) {
             this.externalUserId = UUID.randomUUID().toString();
         }
+    }
+
+    public static User create (UserRegisterRequest request) {
+        return User.builder()
+                .name(request.name())
+                .address(request.address())
+                .birthDate(request.birthDate())
+                .phoneNo(request.phoneNo())
+                .build();
     }
 }
