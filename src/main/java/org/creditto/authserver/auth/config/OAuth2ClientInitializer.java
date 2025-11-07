@@ -6,6 +6,7 @@ import org.creditto.authserver.auth.constants.CustomGrantType;
 import org.creditto.authserver.client.entity.OAuth2RegisteredClient;
 import org.creditto.authserver.client.entity.RegisteredClientMapper;
 import org.creditto.authserver.client.repository.OAuth2RegisteredClientRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,12 +36,36 @@ public class OAuth2ClientInitializer {
     private final RegisteredClientMapper clientMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${CORE_BANKING_ID}")
+    private String coreBankingId;
+
+    @Value("${CORE_BANKING_SECRET}")
+    private String coreBankingSecret;
+
+    @Value("${COREB_BANKING_NAME}")
+    private String coreBankingName;
+
+    @Value("${CORE_BANKING_URL}")
+    private String coreBankingUrl;
+
+    @Value("${CREDITTO_ID}")
+    private String credittoId;
+
+    @Value("${CREDITTO_SECRET}")
+    private String credittoSecret;
+
+    @Value("${CREDITTO_NAME}")
+    private String credittoName;
+
+    @Value("${CREDITTO_URL}")
+    private String credittoUrl;
+
     @Bean
     public CommandLineRunner initOAuth2Clients() {
         return args -> {
 
             // CoreBanking 클라이언트 등록
-            if (clientRepository.findByClientId("corebanking-client").isEmpty()) {
+            if (clientRepository.findByClientId(coreBankingId).isEmpty()) {
                 RegisteredClient coreBankingClient = createCoreBankingClient();
                 OAuth2RegisteredClient entity = clientMapper.convertToEntity(coreBankingClient);
                 clientRepository.save(entity);
@@ -50,7 +75,7 @@ public class OAuth2ClientInitializer {
             }
 
             // Creditto 클라이언트 등록
-            if (clientRepository.findByClientId("creditto-client").isEmpty()) {
+            if (clientRepository.findByClientId(credittoId).isEmpty()) {
                 RegisteredClient credittoClient = createCredittoClient();
                 OAuth2RegisteredClient entity = clientMapper.convertToEntity(credittoClient);
                 clientRepository.save(entity);
@@ -66,9 +91,9 @@ public class OAuth2ClientInitializer {
      */
     private RegisteredClient createCoreBankingClient() {
         return RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("corebanking-client")
-                .clientSecret(passwordEncoder.encode("corebanking-secret"))
-                .clientName("Core Banking System")
+                .clientId(coreBankingId)
+                .clientSecret(passwordEncoder.encode(coreBankingSecret))
+                .clientName(coreBankingName)
 
                 // 클라이언트 인증 방법
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
@@ -78,12 +103,12 @@ public class OAuth2ClientInitializer {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .authorizationGrantType(CustomGrantType.CERTIFICATE)  // 커스텀
+                .authorizationGrantType(CustomGrantType.CERTIFICATE)
 
                 // 리다이렉트 URI
-                .redirectUri("http://localhost:8080/login/oauth2/code/corebanking")
-                .redirectUri("http://localhost:8080/authorized")
-                .postLogoutRedirectUri("http://localhost:8080/logout")
+                .redirectUri(coreBankingUrl + "/login/oauth2/code/corebanking")
+                .redirectUri(coreBankingUrl + "/authorized")
+                .postLogoutRedirectUri(coreBankingUrl + "/logout")
 
                 // 스코프
                 .scope(OidcScopes.OPENID)
@@ -116,9 +141,9 @@ public class OAuth2ClientInitializer {
      */
     private RegisteredClient createCredittoClient() {
         return RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("creditto-client")
-                .clientSecret(passwordEncoder.encode("creditto-secret"))
-                .clientName("Credit Service")
+                .clientId(credittoId)
+                .clientSecret(passwordEncoder.encode(credittoSecret))
+                .clientName(credittoName)
 
                 // 클라이언트 인증 방법
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
@@ -131,9 +156,9 @@ public class OAuth2ClientInitializer {
                 .authorizationGrantType(CustomGrantType.CERTIFICATE)
 
                 // 리다이렉트 URI
-                .redirectUri("http://localhost:8081/login/oauth2/code/creditto")
-                .redirectUri("http://localhost:8081/authorized")
-                .postLogoutRedirectUri("http://localhost:8081/logout")
+                .redirectUri(credittoUrl + "/login/oauth2/code/creditto")
+                .redirectUri(credittoUrl + "/authorized")
+                .postLogoutRedirectUri(credittoUrl + "/logout")
 
                 // 스코프
                 .scope(OidcScopes.OPENID)
