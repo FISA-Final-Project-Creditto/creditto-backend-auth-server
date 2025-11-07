@@ -231,7 +231,7 @@ public class CertificateService {
      * 인증서 갱신
      */
     @Transactional
-    public CertificateIssueResponse renewCertificate(String oldSerialNumber, String simplePassword) throws Exception {
+    public CertificateIssueResponse renewCertificate(String oldSerialNumber, String simplePassword) {
         // 기존 인증서 조회 및 검증
         Certificate oldCertificate = certificateRepository.findBySerialNumber(oldSerialNumber)
                 .orElseThrow(() -> new CertificateNotFoundException(CERTIFICATE_NOT_FOUND + ": " + oldSerialNumber));
