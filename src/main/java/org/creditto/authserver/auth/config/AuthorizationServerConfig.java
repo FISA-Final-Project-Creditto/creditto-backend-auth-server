@@ -18,6 +18,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
@@ -28,7 +30,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.UUID;
 
 @Configuration
 @EnableWebSecurity
@@ -38,6 +39,9 @@ public class AuthorizationServerConfig {
 
     @Value("${AUTH_SERVER_URL}")
     private String authServerUrl;
+
+    @Value("${JWK_KEY_ID}")
+    private String keyId;
 
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final RsaKeyUtil rsaKeyUtil;
@@ -83,12 +87,13 @@ public class AuthorizationServerConfig {
             throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/api/user/**").permitAll()
                         .requestMatchers("/api/certificate/**").permitAll()
                         .requestMatchers("/api/client/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/certificate/**", "/api/client/**")
+                        .ignoringRequestMatchers("/api/user/**", "/api/certificate/**", "/api/client/**")
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
@@ -107,7 +112,7 @@ public class AuthorizationServerConfig {
             // 3. JWK 생성
             RSAKey rsaKey = new RSAKey.Builder(publicKey)
                     .privateKey(privateKey)
-                    .keyID(UUID.randomUUID().toString())
+                    .keyID(keyId)
                     .build();
 
             JWKSet jwkSet = new JWKSet(rsaKey);
@@ -133,5 +138,10 @@ public class AuthorizationServerConfig {
         return AuthorizationServerSettings.builder()
                 .issuer(authServerUrl)
                 .build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
