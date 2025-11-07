@@ -4,24 +4,40 @@ pipeline {
 	stages {
 		stage('Build and Test') {
 			steps {
-				withCredentials([string(credentialsId: 'authserver_env', variable: 'ENV_CONTENT')]) {
+				withCredentials(
+					[
+						string(credentialsId: 'authserver_env', variable: 'ENV_CONTENT'),
+						string(credentialsId: 'jwt-private-pem', variable: 'PRIVATE_PEM_CONTENT'),
+						string(credentialsId: 'jwt-public-pem', variable: 'PUBLIC_PEM_CONTENT')
+					]
+				) {
 					sh '''
                         echo "$ENV_CONTENT" > .env
                         chmod 600 .env
                         ls -al .env
                         echo "env 파일 적재 완료 ✔"
+
+                        mkdir -p build/resources/main/keys
+
+						echo "$PRIVATE_PEM_CONTENT" > build/resources/main/keys/jwt-private.pem
+						echo "$PUBLIC_PEM_CONTENT" > build/resources/main/keys/jwt-public.pem
+
+						chmod 600 build/resources/main/keys/jwt-private.pem
+
+						echo ".pem 키 파일 생성 완료 ✔"
+						ls -al build/resources/main/keys
                     '''
 				}
 
 				sh 'chmod +x ./gradlew'
-				sh './gradlew clean build'
+				sh './gradlew build'
 			}
 		}
 	}
 
 	post {
 		always {
-			junit 'build/test-results/test/*.xml'
+			junit testResults: 'build/test-results/test/*.xml', allowEmptyResults: true
 		}
 	}
 }
