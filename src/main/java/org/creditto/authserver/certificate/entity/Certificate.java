@@ -1,10 +1,8 @@
 package org.creditto.authserver.certificate.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import org.creditto.authserver.certificate.CertificateStatus;
 import org.creditto.authserver.user.entity.User;
 import org.springframework.data.annotation.CreatedDate;
@@ -19,6 +17,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
 public class Certificate {
 
     @Id
@@ -58,4 +57,44 @@ public class Certificate {
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(length = 100)
+    private String privateKeySalt;
+
+    private String revokeReason;
+
+    public static Certificate create(
+            User user,
+            String serialNumber,
+            String publicKey,
+            String encryptedPrivateKey,
+            String privateKeySalt,
+            LocalDateTime issuedAt,
+            LocalDateTime expiresAt) {
+        return Certificate.builder()
+                .user(user)
+                .serialNumber(serialNumber)
+                .publicKey(publicKey)
+                .privateKey(encryptedPrivateKey)
+                .privateKeySalt(privateKeySalt)
+                .status(CertificateStatus.ACTIVE)
+                .issuedAt(issuedAt)
+                .expiresAt(expiresAt)
+                .build();
+    }
+
+    /**
+     * 인증서 상태 변경
+     */
+    public void changeStatus(CertificateStatus status) {
+        this.status = status;
+    }
+
+    /**
+     * 인증서 폐기
+     */
+    public void revoke(String reason) {
+        this.status = CertificateStatus.REVOKE;
+        this.revokeReason = reason;
+    }
 }

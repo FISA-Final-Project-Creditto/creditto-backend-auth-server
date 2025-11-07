@@ -12,6 +12,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -90,6 +93,44 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 401 - InvalidSimplePasswordException
+     * 예외 내용 : 잘못된 간편비밀번호
+     */
+    @ExceptionHandler(InvalidSimplePasswordException.class)
+    public ResponseEntity<BaseResponse<?>> handleInvalidSimplePassword(final InvalidSimplePasswordException e) {
+        log.error("잘못된 간편비밀번호: {}", e.getMessage());
+        return ApiResponseUtil.failure(ErrorBaseCode.INVALID_SIMPLE_PASSWORD, e.getMessage());
+    }
+
+    /**
+     * 401 - OAuth2AuthenticationException
+     * 예외 내용: OAuth2 인증 실패
+     */
+    @ExceptionHandler(OAuth2AuthenticationException.class)
+    public ResponseEntity<BaseResponse<?>> handleOAuth2AuthenticationException(final OAuth2AuthenticationException e) {
+        OAuth2Error error = e.getError();
+        log.error("OAuth2 인증 실패 - error: {}, description: {}", error.getErrorCode(), error.getDescription());
+
+        // OAuth2 에러 코드에 따른 분기 처리
+        return switch (error.getErrorCode()) {
+            case "invalid_client" -> ApiResponseUtil.failure(ErrorBaseCode.OAUTH_INVALID_CLIENT_CREDENTIALS, error.getDescription());
+            case "invalid_grant" -> ApiResponseUtil.failure(ErrorBaseCode.OAUTH_INVALID_GRANT_TYPE, error.getDescription());
+            case "unauthorized_client" -> ApiResponseUtil.failure(ErrorBaseCode.OAUTH_UNAUTHORIZED, error.getDescription());
+            default -> ApiResponseUtil.failure(ErrorBaseCode.OAUTH_DEFAULT_UNAUTHORIZED, error.getDescription());
+        };
+    }
+
+    /**
+     * 401 - InvalidBearerTokenException
+     * 예외 내용: 유효하지 않은 Bearer 토큰
+     */
+    @ExceptionHandler(InvalidBearerTokenException.class)
+    public ResponseEntity<BaseResponse<?>> handleInvalidBearerTokenException(final InvalidBearerTokenException e) {
+        log.error("유효하지 않은 Bearer 토큰: {}", e.getMessage());
+        return ApiResponseUtil.failure(ErrorBaseCode.EXPIRED_TOKEN, e.getMessage());
+    }
+
+    /**
      * 403 - AccessDeniedException
      * 예외 내용: 사용자가 허가되지 않은 자원에 접근할 때 발생
      */
@@ -106,6 +147,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<BaseResponse<?>> handleEntityNotFoundException(final EntityNotFoundException e) {
         return ApiResponseUtil.failure(ErrorBaseCode.NOT_FOUND_ENTITY, e.getMessage());
+    }
+
+    /**
+     * 404 - CertificateNotFoundException
+     * 예외 내용 : 인증서를 찾을 수 없음
+     */
+    @ExceptionHandler(CertificateNotFoundException.class)
+    public ResponseEntity<BaseResponse<?>> handleCertificateNotFound(final CertificateNotFoundException e) {
+        log.error("인증서를 찾을 수 없음: {}", e.getMessage());
+        return ApiResponseUtil.failure(ErrorBaseCode.CERTIFICATE_NOT_FOUND, e.getMessage());
     }
 
     /**
@@ -135,6 +186,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<BaseResponse<?>> handleHttpRequestMethodNotSupportedException(final HttpRequestMethodNotSupportedException e) {
         logWarn(e);
         return ApiResponseUtil.failure(ErrorBaseCode.METHOD_NOT_ALLOWED);
+    }
+
+    /**
+     * 410 - CertificateExpiredException
+     * 예외 내용 : 인증서 만료
+     */
+    @ExceptionHandler(CertificateExpiredException.class)
+    public ResponseEntity<BaseResponse<?>> handleCertificateExpired(final CertificateExpiredException e) {
+        log.error("인증서 만료: {}", e.getMessage());
+        return ApiResponseUtil.failure(ErrorBaseCode.CERTIFICATE_EXPIRED, e.getMessage());
     }
 
     /**
@@ -180,6 +241,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<?>> handleServerException(final Exception e) {
+        logWarn(e);
+        return ApiResponseUtil.failure(ErrorBaseCode.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<BaseResponse<?>> handleCustomException(final CustomException e) {
         logWarn(e);
         return ApiResponseUtil.failure(ErrorBaseCode.INTERNAL_SERVER_ERROR);
     }
