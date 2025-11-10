@@ -52,7 +52,7 @@ pipeline {
 
 		stage('Build Docker Image') {
 			when {
-				branch: 'dev'
+				branch 'dev'
 			}
 			steps {
 				script {
