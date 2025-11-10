@@ -81,14 +81,18 @@ pipeline {
                         docker stop ${CONTAINER_NAME} || true
                         docker rm ${CONTAINER_NAME} || true
 
+                        echo "$ENV_CONTENT" > /tmp/auth-server.env
+
                         echo "컨테이너 실행..✅"
                         docker run -d \
                             --name ${CONTAINER_NAME} \
                             -p 8490:9000 \
                             --network sw_team5_network \
                             --restart unless-stopped \
-                            --env-file $ENV_CONTENT \
+                            --env-file /tmp/auth-server.env \
                             ${DOCKER_IMAGE}:dev-latest
+
+                        rm /tmp/auth-server.env
 
                         sleep 15
 
