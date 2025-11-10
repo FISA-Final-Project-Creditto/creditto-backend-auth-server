@@ -90,8 +90,8 @@ pipeline {
                         docker run -d \
                             --name ${CONTAINER_NAME} \
                             -p 8490:8080 \
-                            -v /opt/creditto/config/.env:/app/.env:ro \
-                            -v /opt/creditto/config/keys:/app/keys:ro \
+                            -v $WORKSPACE/.env:/app/.env:ro \
+                            -v $WORKSPACE/build/resources/main/keys:/app/keys:ro \
                             --network creditto-network \
                             --restart unless-stopped \
                             ${DOCKER_IMAGE}:dev-latest
