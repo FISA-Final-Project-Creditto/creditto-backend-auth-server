@@ -24,5 +24,18 @@ logging:
 
 auth:
   jwt:
-    private-key-path: ${JWT_PRIVATE_KEY_PATH}
-    public-key-path: ${JWT_PUBLIC_KEY_PATH}
+    private-key-path: classpath:/keys/jwt-private.pem
+    public-key-path: classpath:/keys/jwt-public.pem
+
+AUTH_SERVER_URL: http://localhost:9000
+JWK_KEY_ID: test-key-id
+
+CORE_BANKING_ID: test-corebanking-client
+CORE_BANKING_SECRET: test-secret
+CORE_BANKING_NAME: Test CoreBanking
+CORE_BANKING_URL: http://localhost:8080
+
+CREDITTO_ID: test-creditto-client
+CREDITTO_SECRET: test-secret
+CREDITTO_NAME: Test Creditto
+CREDITTO_URL: http://localhost:8081
