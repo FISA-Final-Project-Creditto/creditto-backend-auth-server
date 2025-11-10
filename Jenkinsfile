@@ -89,7 +89,7 @@ pipeline {
                         docker run -d \
                             --name ${CONTAINER_NAME} \
                             -p 8490:8080 \
-                            --network creditto-network \
+                            --network sw_team5_network \
                             --restart unless-stopped \
                             --env-file ./temp.env \
                             ${DOCKER_IMAGE}:dev-latest
