@@ -71,7 +71,7 @@ pipeline {
 			}
 			steps {
 				withCredentials([
-					string(credentialsId: 'authserver_env', variable: 'ENV_CONTENT')
+					file(credentialsId: 'AUTH_ENV_FILE', variable: 'ENV_CONTENT')
 				]) {
 					script {
 						// 1. Docker 컨테이너 실행
@@ -81,19 +81,14 @@ pipeline {
                         docker stop ${CONTAINER_NAME} || true
                         docker rm ${CONTAINER_NAME} || true
 
-                        echo "$ENV_CONTENT" > ./temp.env
-                        chmod 600 ./temp.env
-
                         echo "컨테이너 실행..✅"
                         docker run -d \
                             --name ${CONTAINER_NAME} \
                             -p 8490:9000 \
                             --network sw_team5_network \
                             --restart unless-stopped \
-                            --env-file ./temp.env \
+                            --env-file $ENV_CONTENT \
                             ${DOCKER_IMAGE}:dev-latest
-
-                        rm ./temp.env
 
                         sleep 15
 
