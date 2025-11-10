@@ -47,6 +47,7 @@ pipeline {
 
 				sh './gradlew test'
 				sh './gradlew bootJar'
+				sh 'rm .env'
 			}
 		}
 
@@ -70,16 +71,13 @@ pipeline {
 				branch 'dev'
 			}
 			steps {
-				script {
-					// 1. 호스트(Jenkins Agent)에 배포용 설정/키 파일 복사
-					sh '''
-                        mkdir -p /opt/creditto/config
-                        cp .env /opt/creditto/config/.env
-                        cp -r build/resources/main/keys /opt/creditto/config/
-                    '''
+				withCredentials([
+					string(credentialsId: 'authserver_env', variable: 'ENV_CONTENT')
+				]) {
+					script {
+						// 1. Docker 컨테이너 실행
 
-					// 2. Docker 컨테이너 실행
-					sh '''
+						sh '''
                         # 기존 컨테이너 중지 및 제거
                         echo "기존 컨테이너 중지 및 제거 ❌"
                         docker stop ${CONTAINER_NAME} || true
@@ -87,13 +85,12 @@ pipeline {
 
                         # 새 컨테이너 실행 (호스트 볼륨 마운트)
                         echo "컨테이너 실행..✅"
-                        docker run -d \
+                        echo "$ENV_CONTENT" | docker run -d \
                             --name ${CONTAINER_NAME} \
                             -p 8490:8080 \
-                            -v $WORKSPACE/.env:/app/.env:ro \
-                            -v $WORKSPACE/build/resources/main/keys:/app/keys:ro \
                             --network creditto-network \
                             --restart unless-stopped \
+                            --env-file - \
                             ${DOCKER_IMAGE}:dev-latest
 
                         sleep 15
@@ -101,7 +98,9 @@ pipeline {
                         echo "헬스 체크 시작...🔥"
                         curl -f http://localhost:8490/actuator/health || exit 1
                         echo "Deployment successful!"
-                    '''
+
+						'''
+					}
 				}
 			}
 		}
