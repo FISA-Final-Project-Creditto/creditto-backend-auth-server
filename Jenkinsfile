@@ -78,20 +78,23 @@ pipeline {
 						// 1. Docker 컨테이너 실행
 
 						sh '''
-                        # 기존 컨테이너 중지 및 제거
                         echo "기존 컨테이너 중지 및 제거 ❌"
                         docker stop ${CONTAINER_NAME} || true
                         docker rm ${CONTAINER_NAME} || true
 
-                        # 새 컨테이너 실행 (호스트 볼륨 마운트)
+                        echo "$ENV_CONTENT" > ./temp.env
+                        chmod 600 ./temp.env
+
                         echo "컨테이너 실행..✅"
-                        echo "$ENV_CONTENT" | docker run -d \
+                        docker run -d \
                             --name ${CONTAINER_NAME} \
                             -p 8490:8080 \
                             --network creditto-network \
                             --restart unless-stopped \
-                            --env-file - \
+                            --env-file ./temp.env \
                             ${DOCKER_IMAGE}:dev-latest
+
+                        rm ./temp.env
 
                         sleep 15
 
