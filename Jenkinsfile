@@ -45,8 +45,7 @@ pipeline {
                     '''
 				}
 
-				sh './gradlew test'
-				sh './gradlew bootJar'
+				sh './gradlew build'
 				sh 'rm .env'
 			}
 		}
@@ -88,7 +87,7 @@ pipeline {
                         echo "컨테이너 실행..✅"
                         docker run -d \
                             --name ${CONTAINER_NAME} \
-                            -p 8490:8080 \
+                            -p 8490:9000 \
                             --network sw_team5_network \
                             --restart unless-stopped \
                             --env-file ./temp.env \
@@ -99,7 +98,7 @@ pipeline {
                         sleep 15
 
                         echo "헬스 체크 시작...🔥"
-                        curl -f http://localhost:8490/actuator/health || exit 1
+                        curl -f http://${CONTAINER_NAME}:9000/actuator/health || exit 1
                         echo "Deployment successful!"
 
 						'''
