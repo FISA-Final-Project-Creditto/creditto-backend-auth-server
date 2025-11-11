@@ -81,6 +81,10 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                     log.warn("OAUTH2 ERROR : INVALID GRANT TYPE");
                     yield ErrorBaseCode.OAUTH_INVALID_GRANT_TYPE;
                 }
+                case OAuth2ErrorCodes.UNSUPPORTED_GRANT_TYPE -> {
+                    log.warn("OAUTH2 ERROR : UNSUPPORTED GRANT TYPE");
+                    yield ErrorBaseCode.OAUTH_UNSUPPORTED_GRANT_TYPE;
+                }
                 default -> {
                     log.warn("OAUTH2 ERROR : {}", oauthErrorCode);
                     yield ErrorBaseCode.OAUTH_DEFAULT_UNAUTHORIZED;

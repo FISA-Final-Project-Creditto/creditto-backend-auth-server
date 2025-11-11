@@ -17,12 +17,13 @@ public enum ErrorBaseCode implements ErrorCode {
     MISSING_PARAM(HttpStatus.BAD_REQUEST, 400, "필수 파라미터가 존재하지 않습니다."),
     NOT_READABLE(HttpStatus.BAD_REQUEST, 400, "JSON 혹은 REQUEST BODY 필드 오류 입니다."),
     INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, 400, "BODY 유효성 검사 실패 오류입니다."),
+    OAUTH_UNSUPPORTED_GRANT_TYPE(HttpStatus.BAD_REQUEST, 40011, "지원하지 않는 Grant Type 입니다."),
 
     /**
      * 401 UNAUTHORIZED - 리소스 접근 권한
      */
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, 401, "토큰이 만료되었습니다."),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40110, "인증되지 않은 Client 입니다.."),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40110, "인증되지 않은 Client 입니다."),
     OAUTH_DEFAULT_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "OAuth 인증에 실패하였습니다"),
     OAUTH_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40101, "인증되지 않은 고객입니다."),
     OAUTH_INVALID_CLIENT_CREDENTIALS(HttpStatus.UNAUTHORIZED, 40102, "유효하지 않은 증명입니다."),

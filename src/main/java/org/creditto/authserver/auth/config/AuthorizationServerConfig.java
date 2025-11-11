@@ -35,6 +35,11 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.core.AuthenticationException;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -54,6 +59,7 @@ public class AuthorizationServerConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final RsaKeyUtil rsaKeyUtil;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Bean
     @Order(1)
@@ -74,6 +80,7 @@ public class AuthorizationServerConfig {
                                                 .accessTokenRequestConverter(
                                                         new CertificateGrantAuthenticationConverter() // 인증서 기반 인증 처리하도록 Converter 지정
                                                 )
+                                                .errorResponseHandler(this::handleTokenError)
                                                 .authenticationProvider(certificateGrantAuthenticationProvider) // 인증서 Grant Provider 등록
                                 )
                                 .oidc(Customizer.withDefaults()) // OpenID Connect 활성화
@@ -220,5 +227,10 @@ public class AuthorizationServerConfig {
                 }
             }
         };
+    }
+
+    // MVC 예외 위임
+    private void handleTokenError(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) {
+        handlerExceptionResolver.resolveException(request, response, null, exception);
     }
 }
