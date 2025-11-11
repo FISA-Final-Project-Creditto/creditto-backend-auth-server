@@ -172,11 +172,11 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 409 - CertificateIssueFailException
+     * 409 - CertificateAlreadyExistsException
      * 예외 내용 : 인증서가 이미 존재함
      */
-    @ExceptionHandler(CertificateIssueFailException.class)
-    public ResponseEntity<BaseResponse<Void>> handleCertificateIssueFail(final CertificateIssueFailException e) {
+    @ExceptionHandler(CertificateAlreadyExistsException.class)
+    public ResponseEntity<BaseResponse<Void>> handleCertificateAlreadyExists(final CertificateAlreadyExistsException e) {
         log.error("인증서 발급 실패: {}", e.getMessage());
         return ApiResponseUtil.failure(ErrorBaseCode.CONFLICT, e.getMessage());
     }
