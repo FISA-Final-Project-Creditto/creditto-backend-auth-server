@@ -52,7 +52,7 @@ pipeline {
 				withSonarQubeEnv('sonarqube') {
 					withCredentials([string(credentialsId: 'sw_team_5_sonar_token', variable: 'SONAR_TOKEN')]) {
 						sh """
-                            ./gradlew sonarqube \
+                            ./gradlew sonar \
                                 -Dsonar.projectKey=sw_team_5_auth_server \
                                 -Dsonar.host.url=http://sw_team_5_sonarqube:9000 \
                                 -Dsonar.login=$SONAR_TOKEN
