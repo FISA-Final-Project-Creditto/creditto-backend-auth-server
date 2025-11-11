@@ -2,6 +2,7 @@ package org.creditto.authserver.certificate.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.creditto.authserver.certificate.enums.HistoryAction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -25,7 +26,8 @@ public class CertificateUsageHistory {
     private Certificate certificate;
 
     @Column(nullable = false, length = 50)
-    private String action;
+    @Enumerated(EnumType.STRING)
+    private HistoryAction action;
 
     @Column(nullable = false)
     private boolean success;
@@ -42,4 +44,15 @@ public class CertificateUsageHistory {
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public static CertificateUsageHistory issue(Certificate certificate, HistoryAction action, boolean success, String ipAddress, String userAgent, String failureReason) {
+        return CertificateUsageHistory.builder()
+                .certificate(certificate)
+                .action(action)
+                .success(success)
+                .ipAddress(ipAddress)
+                .userAgent(userAgent)
+                .failureReason(failureReason)
+                .build();
+    }
 }

@@ -3,7 +3,7 @@ package org.creditto.authserver.certificate.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import org.creditto.authserver.certificate.CertificateStatus;
+import org.creditto.authserver.certificate.enums.CertificateStatus;
 import org.creditto.authserver.user.entity.User;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -24,7 +24,7 @@ public class Certificate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
