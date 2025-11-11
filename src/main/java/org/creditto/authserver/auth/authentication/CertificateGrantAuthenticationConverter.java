@@ -16,6 +16,8 @@ import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
+import static org.creditto.authserver.auth.constants.Constants.USER_AGENT;
+
 // 요청에 대한 GrantType 검증 및 인증 요청 방식 검사
 public class CertificateGrantAuthenticationConverter implements AuthenticationConverter {
 
@@ -40,7 +42,9 @@ public class CertificateGrantAuthenticationConverter implements AuthenticationCo
 
         // 익명 인증 객체 생성
         // 해당 익명 인증 객체 생성 가능 여부를 판단하여 올바른 요청인지 검증
-        return CertificateAuthenticationToken.createAnonymousToken(certificateSerial, simplePassword, clientId);
+        CertificateAuthenticationToken token = CertificateAuthenticationToken.createAnonymousToken(certificateSerial, simplePassword, clientId);
+        token.setDetails(RequestClientInfo.from(request.getRemoteAddr(), request.getHeader(USER_AGENT)));
+        return token;
     }
 
     private static String getParameter(MultiValueMap<String, String> parameters, String parameterName) {

@@ -5,11 +5,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.creditto.authserver.auth.utils.AESUtil;
 import org.creditto.authserver.auth.utils.CertificateEncryptionUtil;
-import org.creditto.authserver.certificate.CertificateStatus;
+import org.creditto.authserver.certificate.enums.CertificateStatus;
 import org.creditto.authserver.certificate.dto.CertificateIssueRequest;
 import org.creditto.authserver.certificate.dto.CertificateIssueResponse;
 import org.creditto.authserver.certificate.entity.Certificate;
 import org.creditto.authserver.certificate.entity.CertificateUsageHistory;
+import org.creditto.authserver.certificate.enums.HistoryAction;
+import org.creditto.authserver.global.exception.CertificateAlreadyExistsException;
 import org.creditto.authserver.global.exception.CertificateExpiredException;
 import org.creditto.authserver.global.exception.CertificateNotFoundException;
 import org.creditto.authserver.global.exception.InvalidSimplePasswordException;
@@ -25,7 +27,6 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,9 +51,13 @@ public class CertificateService {
      * @return 인증서 발급 정보
      */
     @Transactional
-    public CertificateIssueResponse issueCertificate(CertificateIssueRequest request) {
+    public CertificateIssueResponse issueCertificate(CertificateIssueRequest request, String ipAddress, String userAgent) {
         // 사용자 검증
         User user = getAndValidateUser(request);
+
+        if (certificateRepository.existsCertificateByStatusAndUser(CertificateStatus.ACTIVE, user)) {
+            throw new CertificateAlreadyExistsException(CERTIFICATE_EXISTS);
+        }
 
         // 간편비밀번호 유효성 검증
         validateSimplePassword(request.simplePassword());
@@ -75,6 +80,8 @@ public class CertificateService {
 
         certificateRepository.save(certificate);
 
+        recordUsageHistory(certificate, HistoryAction.ISSUE, true, null, ipAddress, userAgent);
+
         log.info("인증서 발급 완료 - 사용자: {}, 일련번호: {}", user.getName(), certificate.getSerialNumber());
 
         return CertificateIssueResponse.from(certificate);
@@ -87,10 +94,9 @@ public class CertificateService {
      * @return 인증서 (Entity)
      */
     @Transactional
-    public Certificate authenticateWithCertificate(String certificateSerial, String simplePassword) {
+    public Certificate authenticateWithCertificate(String certificateSerial, String simplePassword, String ipAddress, String userAgent) {
         // 인증서 조회
-        Certificate certificate = certificateRepository.findBySerialNumber(certificateSerial)
-                .orElseThrow(() -> new CertificateNotFoundException(CERTIFICATE_NOT_FOUND + ": " + certificateSerial));
+        Certificate certificate = getCertificateBySerialNumber(certificateSerial);
 
         User user = certificate.getUser();
 
@@ -100,9 +106,11 @@ public class CertificateService {
             // 키쌍 검증
             if (verifyCertificateKeyPair(simplePassword, certificate)) {
                 log.info("인증서 인증 성공 - 사용자: {}, 인증서: {}", user.getName(), certificateSerial);
+                recordUsageHistory(certificate, HistoryAction.AUTHENTICATION, true, null, ipAddress, userAgent);
                 return certificate;
             } else {
                 log.error("인증서 키쌍 검증 실패 - 인증서: {}", certificateSerial);
+                recordUsageHistory(certificate, HistoryAction.AUTHENTICATION, false, CERTIFICATE_AUTH_FAILED, ipAddress, userAgent);
                 throw new InvalidSimplePasswordException(CERTIFICATE_AUTH_FAILED);
             }
         } catch (InvalidSimplePasswordException e) {
@@ -124,19 +132,12 @@ public class CertificateService {
      * @param userAgent
      */
     private void recordUsageHistory(Certificate certificate,
-                                    String action,
+                                    HistoryAction action,
                                     boolean success,
                                     String failureReason,
                                     String ipAddress,
                                     String userAgent) {
-        CertificateUsageHistory history = CertificateUsageHistory.builder()
-                .certificate(certificate)
-                .action(action)
-                .success(success)
-                .failureReason(failureReason)
-                .ipAddress(ipAddress)
-                .userAgent(userAgent)
-                .build();
+        CertificateUsageHistory history = CertificateUsageHistory.create(certificate, action, success, failureReason, ipAddress, userAgent);
 
         certificateUsageHistoryRepository.save(history);
 
@@ -146,13 +147,13 @@ public class CertificateService {
 
 
     public List<CertificateUsageHistory> getCertificateHistory(String serialNumber, String simplePassword) {
-        Certificate certificate = certificateRepository.findBySerialNumber(serialNumber)
-                .orElseThrow(() -> new CertificateNotFoundException(CERTIFICATE_NOT_FOUND + ": " + serialNumber));
-
+        Certificate certificate = getCertificateBySerialNumber(serialNumber);
         try {
             if (verifyCertificateKeyPair(simplePassword, certificate)) {
+                recordUsageHistory(certificate, HistoryAction.READ, true, null, "", "");
                 return certificateUsageHistoryRepository.findByCertificate(certificate);
             } else {
+                recordUsageHistory(certificate, HistoryAction.READ, false, null, "", "");
                 throw new InvalidSimplePasswordException(CERTIFICATE_AUTH_FAILED);
             }
         } catch (GeneralSecurityException e) {
@@ -185,8 +186,7 @@ public class CertificateService {
      */
     @Transactional
     public void revokeCertificate(String serialNumber, String simplePassword, String reason) {
-        Certificate certificate = certificateRepository.findBySerialNumber(serialNumber)
-                .orElseThrow(() -> new CertificateNotFoundException(CERTIFICATE_NOT_FOUND + ": " + serialNumber));
+        Certificate certificate = getCertificateBySerialNumber(serialNumber);
         try {
             if (verifyCertificateKeyPair(simplePassword, certificate)) {
                 certificate.revoke(reason);
@@ -204,8 +204,7 @@ public class CertificateService {
      * 인증서 상세 조회
      */
     public Certificate getCertificate(String serialNumber, String simplePassword) {
-        Certificate certificate = certificateRepository.findBySerialNumber(serialNumber)
-                .orElseThrow(() -> new CertificateNotFoundException(CERTIFICATE_NOT_FOUND + ": " + serialNumber));
+        Certificate certificate = getCertificateBySerialNumber(serialNumber);
         try {
             if (verifyCertificateKeyPair(simplePassword, certificate)) {
                 return certificate;
@@ -233,8 +232,7 @@ public class CertificateService {
     @Transactional
     public CertificateIssueResponse renewCertificate(String oldSerialNumber, String simplePassword) {
         // 기존 인증서 조회 및 검증
-        Certificate oldCertificate = certificateRepository.findBySerialNumber(oldSerialNumber)
-                .orElseThrow(() -> new CertificateNotFoundException(CERTIFICATE_NOT_FOUND + ": " + oldSerialNumber));
+        Certificate oldCertificate = getCertificateBySerialNumber(oldSerialNumber);
 
         User user = oldCertificate.getUser();
 
@@ -362,5 +360,10 @@ public class CertificateService {
         if (simplePassword.chars().distinct().count() == 1) {
             throw new InvalidSimplePasswordException(SIMPLE_PASSWORD_REPEATED);
         }
+    }
+
+    private Certificate getCertificateBySerialNumber(String serialNumber) {
+        return certificateRepository.findBySerialNumber(serialNumber)
+                .orElseThrow(() -> new CertificateNotFoundException(CERTIFICATE_NOT_FOUND + ": " + serialNumber));
     }
 }

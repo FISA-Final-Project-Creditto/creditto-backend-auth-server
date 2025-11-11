@@ -1,6 +1,6 @@
 package org.creditto.authserver.certificate.repository;
 
-import org.creditto.authserver.certificate.CertificateStatus;
+import org.creditto.authserver.certificate.enums.CertificateStatus;
 import org.creditto.authserver.certificate.entity.Certificate;
 import org.creditto.authserver.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +25,6 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     long countByUserAndStatus(User user, CertificateStatus status);
 
     List<Certificate> findByStatusAndExpiresAtBefore(CertificateStatus status, LocalDateTime dateTime);
+
+    boolean existsCertificateByStatusAndUser(CertificateStatus status, User user);
 }

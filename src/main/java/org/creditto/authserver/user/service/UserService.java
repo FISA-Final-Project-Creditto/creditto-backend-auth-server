@@ -44,8 +44,8 @@ public class UserService {
     /**
      * 사용자 조회 (ID)
      */
-    public UserResponse getUser(Long userId) {
-        User user = userRepository.findById(userId)
+    public UserResponse getUser(String externalUserId) {
+        User user = userRepository.findUserByExternalUserId(externalUserId)
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND));
 
         return UserResponse.from(user);

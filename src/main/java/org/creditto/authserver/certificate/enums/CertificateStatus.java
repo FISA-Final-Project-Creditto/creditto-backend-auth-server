@@ -1,4 +1,4 @@
-package org.creditto.authserver.certificate;
+package org.creditto.authserver.certificate.enums;
 
 import lombok.Getter;
 

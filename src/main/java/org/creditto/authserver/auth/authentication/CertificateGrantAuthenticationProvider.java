@@ -59,7 +59,15 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
         String certificateSerial = certificateToken.getCertificateSerial();
         String simplePassword = certificateToken.getCredentials();
 
-        Certificate certificate = certificateService.authenticateWithCertificate(certificateSerial, simplePassword);
+        String ipAddress = null;
+        String userAgent = null;
+        Object details = certificateToken.getDetails();
+        if (details instanceof RequestClientInfo info) {
+            ipAddress = info.ipAddress();
+            userAgent = info.userAgent();
+        }
+
+        Certificate certificate = certificateService.authenticateWithCertificate(certificateSerial, simplePassword, ipAddress, userAgent);
         User user = certificate.getUser();
 
         // 3. Principal 생성 (OAuth2ClientAuthenticationToken 생성)
