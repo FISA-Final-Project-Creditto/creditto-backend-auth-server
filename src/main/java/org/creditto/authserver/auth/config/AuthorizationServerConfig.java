@@ -192,7 +192,7 @@ public class AuthorizationServerConfig {
      * Access Token과 Refresh Token을 생성
      */
     @Bean
-    public OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator(
+    public OAuth2TokenGenerator<OAuth2Token> tokenGenerator(
             JwtEncoder jwtEncoder,
             OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer
     ) {

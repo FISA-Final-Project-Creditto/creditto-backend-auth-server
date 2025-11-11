@@ -8,5 +8,6 @@ class AuthServerApplicationTests {
 
     @Test
     void contextLoads() {
+        System.out.println("test");
     }
 }

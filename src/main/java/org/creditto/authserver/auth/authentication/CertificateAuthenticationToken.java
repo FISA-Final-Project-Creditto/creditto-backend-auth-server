@@ -23,7 +23,7 @@ public class CertificateAuthenticationToken extends AbstractAuthenticationToken 
     // 클라이언트 ID
     private final String clientId;
 
-    private Object principal;
+    private transient Object principal;
 
     // 인증 전
     private CertificateAuthenticationToken(String certificateSerial, String simplePassword, String clientId) {
