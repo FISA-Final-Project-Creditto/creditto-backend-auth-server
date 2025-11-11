@@ -45,7 +45,7 @@ public class CertificateUsageHistory {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public static CertificateUsageHistory issue(Certificate certificate, HistoryAction action, boolean success, String ipAddress, String userAgent, String failureReason) {
+    public static CertificateUsageHistory create(Certificate certificate, HistoryAction action, boolean success, String ipAddress, String userAgent, String failureReason) {
         return CertificateUsageHistory.builder()
                 .certificate(certificate)
                 .action(action)
