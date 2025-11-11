@@ -6,8 +6,6 @@ import org.creditto.authserver.global.exception.InvalidSimplePasswordException;
 import org.creditto.authserver.global.response.error.ErrorMessage;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
@@ -107,14 +105,6 @@ public class CertificateEncryptionUtil {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    // 간편비밀번호에서 AES 키 도출
-    private SecretKey deriveKeyFromPassword(String password) throws Exception {
-        // SHA-256으로 해시하여 256비트 키 생성
-        MessageDigest digest = MessageDigest.getInstance(SHA256);
-        byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
-        return new SecretKeySpec(hash, "AES");
     }
 
     /**
