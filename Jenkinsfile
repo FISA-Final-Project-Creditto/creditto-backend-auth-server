@@ -45,8 +45,8 @@ pipeline {
                     '''
 				}
 
-				sh './gradlew test'
-				sh './gradlew bootJar'
+				sh './gradlew build'
+				sh 'rm .env'
 			}
 		}
 
@@ -70,38 +70,40 @@ pipeline {
 				branch 'dev'
 			}
 			steps {
-				script {
-					// 1. 호스트(Jenkins Agent)에 배포용 설정/키 파일 복사
-					sh '''
-                        mkdir -p /opt/creditto/config
-                        cp .env /opt/creditto/config/.env
-                        cp -r build/resources/main/keys /opt/creditto/config/
-                    '''
+				withCredentials([
+					file(credentialsId: 'AUTH_ENV_FILE', variable: 'ENV_CONTENT')
+				]) {
+					script {
+						// 1. Docker 컨테이너 실행
 
-					// 2. Docker 컨테이너 실행
-					sh '''
-                        # 기존 컨테이너 중지 및 제거
+						sh '''
                         echo "기존 컨테이너 중지 및 제거 ❌"
                         docker stop ${CONTAINER_NAME} || true
                         docker rm ${CONTAINER_NAME} || true
 
-                        # 새 컨테이너 실행 (호스트 볼륨 마운트)
+                        echo "$ENV_CONTENT" > .env
+                        chmod 600 .env
+                        ls -al .env
+
                         echo "컨테이너 실행..✅"
                         docker run -d \
                             --name ${CONTAINER_NAME} \
-                            -p 8490:8080 \
-                            -v /opt/creditto/config/.env:/app/.env:ro \
-                            -v /opt/creditto/config/keys:/app/keys:ro \
-                            --network creditto-network \
+                            -p 8490:9000 \
+                            --network sw_team5_network \
                             --restart unless-stopped \
+                            --env-file .env \
                             ${DOCKER_IMAGE}:dev-latest
+
+                        rm /tmp/auth-server.env
 
                         sleep 15
 
                         echo "헬스 체크 시작...🔥"
-                        curl -f http://localhost:8490/actuator/health || exit 1
+                        curl -f http://${CONTAINER_NAME}:9000/actuator/health || exit 1
                         echo "Deployment successful!"
-                    '''
+
+						'''
+					}
 				}
 			}
 		}

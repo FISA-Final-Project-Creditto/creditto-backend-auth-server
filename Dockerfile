@@ -6,6 +6,6 @@ COPY ./build/libs/*.jar app.jar
 
 ENV SPRING_PROFILES_ACTIVE=dev
 
-EXPOSE 8080
+EXPOSE 9000
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "sleep 15 && java -jar app.jar"]
