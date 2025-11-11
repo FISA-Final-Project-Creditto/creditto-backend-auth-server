@@ -46,4 +46,9 @@ public final class ErrorMessage {
     public static final String INVALID_CLIENT = "유효하지 않은 클라이언트입니다.";
     public static final String TOKEN_GENERATION_FAILED = "토큰 생성에 실패했습니다.";
     public static final String CLIENT_NOT_FOUND = "클라이언트를 찾을 수 없습니다.";
+
+    /**
+     * CONFLICT
+     */
+    public static final String CERTIFICATE_EXISTS = "인증서가 이미 존재합니다.";
 }
