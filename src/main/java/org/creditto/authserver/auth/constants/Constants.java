@@ -15,4 +15,5 @@ public final class Constants {
     public static final String PUBLIC_KEY_END = "-----END PUBLIC KEY-----";
     public static final String PRIVATE_KEY_BEGIN = "-----BEGIN PRIVATE KEY-----";
     public static final String PRIVATE_KEY_END = "-----END PRIVATE KEY-----";
+    public static final String USER_AGENT = "User-Agent";
 }

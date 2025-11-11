@@ -51,7 +51,7 @@ public class CertificateService {
      * @return 인증서 발급 정보
      */
     @Transactional
-    public CertificateIssueResponse issueCertificate(CertificateIssueRequest request) {
+    public CertificateIssueResponse issueCertificate(CertificateIssueRequest request, String ipAddress, String userAgent) {
         // 사용자 검증
         User user = getAndValidateUser(request);
 
@@ -80,6 +80,8 @@ public class CertificateService {
 
         certificateRepository.save(certificate);
 
+        recordUsageHistory(certificate, HistoryAction.ISSUE, true, null, ipAddress, userAgent);
+
         log.info("인증서 발급 완료 - 사용자: {}, 일련번호: {}", user.getName(), certificate.getSerialNumber());
 
         return CertificateIssueResponse.from(certificate);
@@ -92,7 +94,7 @@ public class CertificateService {
      * @return 인증서 (Entity)
      */
     @Transactional
-    public Certificate authenticateWithCertificate(String certificateSerial, String simplePassword) {
+    public Certificate authenticateWithCertificate(String certificateSerial, String simplePassword, String ipAddress, String userAgent) {
         // 인증서 조회
         Certificate certificate = getCertificateBySerialNumber(certificateSerial);
 
@@ -104,11 +106,11 @@ public class CertificateService {
             // 키쌍 검증
             if (verifyCertificateKeyPair(simplePassword, certificate)) {
                 log.info("인증서 인증 성공 - 사용자: {}, 인증서: {}", user.getName(), certificateSerial);
-                recordUsageHistory(certificate, HistoryAction.AUTHENTICATION, true, null, "ip", "ua");
+                recordUsageHistory(certificate, HistoryAction.AUTHENTICATION, true, null, ipAddress, userAgent);
                 return certificate;
             } else {
                 log.error("인증서 키쌍 검증 실패 - 인증서: {}", certificateSerial);
-                recordUsageHistory(certificate, HistoryAction.AUTHENTICATION, false, CERTIFICATE_AUTH_FAILED, "ip", "ua");
+                recordUsageHistory(certificate, HistoryAction.AUTHENTICATION, false, CERTIFICATE_AUTH_FAILED, ipAddress, userAgent);
                 throw new InvalidSimplePasswordException(CERTIFICATE_AUTH_FAILED);
             }
         } catch (InvalidSimplePasswordException e) {
@@ -135,7 +137,7 @@ public class CertificateService {
                                     String failureReason,
                                     String ipAddress,
                                     String userAgent) {
-        CertificateUsageHistory history = CertificateUsageHistory.issue(certificate, action, success, failureReason, ipAddress, userAgent);
+        CertificateUsageHistory history = CertificateUsageHistory.create(certificate, action, success, failureReason, ipAddress, userAgent);
 
         certificateUsageHistoryRepository.save(history);
 
