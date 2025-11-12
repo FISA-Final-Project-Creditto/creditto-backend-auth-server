@@ -1,17 +1,11 @@
 pipeline {
 	agent any
 
-	environment {
-		DOCKER_IMAGE = 'sw-team-5-auth-server'
-		DOCKER_TAG = "${env.BUILD_NUMBER}"
-		DOCKER_NETWORK = "sw_team5_network"
-		CONTAINER_NAME = 'sw_team_5_auth_server'
-	}
-
 	stages {
 		stage('Build and Test') {
 			steps {
 				sh 'chmod +x ./gradlew'
+				sh './gradlew clean'
 				sh './gradlew processResources processTestResources'
 
 				withCredentials(
@@ -50,75 +44,20 @@ pipeline {
 		stage('SonarQube Analysis') {
 			steps {
 				withSonarQubeEnv('sonarqube') {
-					withCredentials([string(credentialsId: 'sw_team_5_sonar_token', variable: 'SONAR_TOKEN')]) {
-						sh """
-                            ./gradlew sonarqube \
-                                -Dsonar.projectKey=sw_team_5_auth_server \
-                                -Dsonar.host.url=http://sw_team_5_sonarqube:9000 \
-                                -Dsonar.login=$SONAR_TOKEN
-                        """
-					}
+					sh """
+						./gradlew sonar \
+						  -Dsonar.projectKey=sw_team_5_auth_server \
+						  -Dsonar.host.url=http://sw-team-5-sonarqube:9000 \
+						  -Dsonar.login=$SONAR_AUTH_TOKEN
+					"""
 				}
 			}
 		}
 
 		stage('Quality Gate') {
 			steps {
-				timeout(time: 2, unit: 'MINUTES') {
+				timeout(time: 3, unit: 'MINUTES') {
 					waitForQualityGate abortPipeline: true
-				}
-			}
-		}
-
-		stage('Build Docker Image') {
-			when {
-				branch 'dev'
-			}
-			steps {
-				script {
-					sh '''
-                        # Docker 이미지 빌드
-                        docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:dev-latest
-                    '''
-				}
-			}
-		}
-
-		stage('Deploy to Dev') {
-			when {
-				branch 'dev'
-			}
-			steps {
-				withCredentials([
-					string(credentialsId: 'authserver_env', variable: 'ENV_CONTENT')
-				]) {
-					script {
-
-						sh '''
-                        echo "기존 컨테이너 중지 및 제거 ❌"
-                        docker stop ${CONTAINER_NAME} || true
-                        docker rm ${CONTAINER_NAME} || true
-
-                        echo "$ENV_CONTENT" > .env
-                        chmod 600 .env
-                        ls -al .env
-
-                        echo "컨테이너 실행..✅"
-                        docker run -d \
-                            --name ${CONTAINER_NAME} \
-                            -p 8430:9000 \
-                            --network ${DOCKER_NETWORK} \
-                            --restart unless-stopped \
-                            --env-file .env \
-                            ${DOCKER_IMAGE}:dev-latest
-
-                        echo "헬스 체크 시작...🔥"
-                        curl -f http://${CONTAINER_NAME}:9000/actuator/health || exit 1
-                        echo "배포 완료 ✅"
-
-						'''
-					}
 				}
 			}
 		}
