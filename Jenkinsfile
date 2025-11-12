@@ -5,13 +5,14 @@ pipeline {
 		DOCKER_IMAGE = 'sw-team-5-auth-server'
 		DOCKER_TAG = "${env.BUILD_NUMBER}"
 		DOCKER_NETWORK = "sw_team5_network"
-		CONTAINER_NAME = 'sw_team_5_auth_server'
+		CONTAINER_NAME = 'sw-team-5-auth-server'
 	}
 
 	stages {
 		stage('Build and Test') {
 			steps {
 				sh 'chmod +x ./gradlew'
+				sh './gradlew clean'
 				sh './gradlew processResources processTestResources'
 
 				withCredentials(
@@ -89,7 +90,7 @@ pipeline {
 			}
 			steps {
 				withCredentials([
-					string(credentialsId: 'authserver_env', variable: 'ENV_CONTENT')
+					file(credentialsId: 'authserver_env', variable: 'ENV_CONTENT')
 				]) {
 					script {
 
@@ -110,6 +111,8 @@ pipeline {
                             --restart unless-stopped \
                             --env-file .env \
                             ${DOCKER_IMAGE}:dev-latest
+
+                        sleep 5
 
                         echo "헬스 체크 시작...🔥"
                         curl -f http://${CONTAINER_NAME}:9000/actuator/health || exit 1
