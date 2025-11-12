@@ -53,7 +53,7 @@ pipeline {
 					sh """
 						./gradlew sonar \
 						  -Dsonar.projectKey=sw_team_5_auth_server \
-						  -Dsonar.host.url=http://sw_team_5_sonarqube:9000 \
+						  -Dsonar.host.url=http://sw-team-5-sonarqube:9000 \
 						  -Dsonar.login=$SONAR_AUTH_TOKEN
 					"""
 				}
@@ -62,7 +62,7 @@ pipeline {
 
 		stage('Quality Gate') {
 			steps {
-				timeout(time: 2, unit: 'MINUTES') {
+				timeout(time: 3, unit: 'MINUTES') {
 					waitForQualityGate abortPipeline: true
 				}
 			}
