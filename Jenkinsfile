@@ -50,7 +50,12 @@ pipeline {
 		stage('SonarQube Analysis') {
 			steps {
 				withSonarQubeEnv('sonarqube') {
-					sh './gradlew sonar -Dsonar.projectKey=sw_team_5_auth_server'
+					sh """
+						./gradlew sonar \
+						  -Dsonar.projectKey=sw_team_5_auth_server \
+						  -Dsonar.host.url=http://sw_team_5_sonarqube:9000 \
+						  -Dsonar.login=$SONAR_AUTH_TOKEN
+					"""
 				}
 			}
 		}
