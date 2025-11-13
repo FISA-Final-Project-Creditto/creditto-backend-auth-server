@@ -34,11 +34,11 @@ jobs:
       - name: 테스트용 pem키 생성
         run: |
           
-          mkdir ./src/main/resources/keys
+          mkdir -p ./src/main/resources/keys
           
           touch ./src/main/resources/keys/jwt-public.pem
           echo "${{ secrets.JWT_PUBLIC_TEST_PEM }}" >> ./src/main/resources/keys/jwt-public.pem
-          chmod 600 ./src/main/resources/keys/jwt-public.pem
+          chmod 644 ./src/main/resources/keys/jwt-public.pem
           
           touch ./src/main/resources/keys/jwt-private.pem
           echo "${{ secrets.JWT_PRIVATE_TEST_PEM }}" >> ./src/main/resources/keys/jwt-private.pem
