@@ -50,6 +50,12 @@ jobs:
 
         shell: bash
 
+      - name: build 실행
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build -Dspring.profiles.active=dev
+        shell: bash
+
       - name: sonarqube
         run: |
           ./gradlew sonar \
