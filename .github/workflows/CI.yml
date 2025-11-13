@@ -37,7 +37,7 @@ jobs:
           mkdir ./src/main/resources/keys
           
           touch /src/main/resources/keys/jwt-public.pem
-          echo "${{ secrets.JWT_PUBLIC_TEST_PEM }}" >> /src/main/resources/keys/jwt-private.pem
+          echo "${{ secrets.JWT_PUBLIC_TEST_PEM }}" >> /src/main/resources/keys/jwt-public.pem
           chmod 600 jwt-public.pem
           
           touch /src/main/resources/keys/jwt-private.pem
