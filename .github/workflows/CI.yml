@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DB_NAME }}
+        ports: [ '3306:3306' ]
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: MySQL 초기화 대기
+        run: |
+          sleep 5
+
+        shell: bash
+
+      - name: JDK 17 설치
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+
+      - name: .env 파일 생성
+        run: |
+          
+          # .env 파일 생성
+          touch .env
+          
+          # .env 파일 작성
+          echo "${{ secrets.ENV_FILE }}" >> .env
+          
+          chmod 600 .env
+
+        shell: bash
+
+      - name: 테스트용 pem키 생성
+        run: |
+          
+          mkdir -p ./src/main/resources/keys
+          
+          touch ./src/main/resources/keys/jwt-public.pem
+          echo "${{ secrets.JWT_PUBLIC_TEST_PEM }}" >> ./src/main/resources/keys/jwt-public.pem
+          chmod 644 ./src/main/resources/keys/jwt-public.pem
+          
+          touch ./src/main/resources/keys/jwt-private.pem
+          echo "${{ secrets.JWT_PRIVATE_TEST_PEM }}" >> ./src/main/resources/keys/jwt-private.pem
+          chmod 600 ./src/main/resources/keys/jwt-private.pem
+
+        shell: bash
+
+      - name: build 실행
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build
+        shell: bash
+
+      - name: sonarqube
+        run: |
+          ./gradlew sonar \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_NAME }} \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+        shell: bash
+
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        with:
+          pollingTimeoutSec: 600
+          scanMetadataReportFile: build/sonar/report-task.txt
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: clean
+        run: |
+          rm .env
+          rm -rf ./src/main/resources/keys
+        shell: bash
