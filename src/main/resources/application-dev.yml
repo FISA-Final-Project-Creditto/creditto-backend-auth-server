@@ -25,5 +25,5 @@ logging:
 
 auth:
   jwt:
-    private-key-path: ${JWT_PRIVATE_KEY_PATH}
-    public-key-path: ${JWT_PUBLIC_KEY_PATH}
+    private-key-path: ${JWT_PRIVATE_KEY_PATH_DEV}
+    public-key-path: ${JWT_PUBLIC_KEY_PATH_DEV}

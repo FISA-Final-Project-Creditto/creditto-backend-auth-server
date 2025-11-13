@@ -1,0 +1,139 @@
+name: CD-Dev
+
+on:
+  push:
+    branches: ["main"]
+
+concurrency:
+  group: creditto
+  cancel-in-progress: true
+
+jobs:
+  CI:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v3
+
+      - name: JDK17 설치
+        uses: actions/setup-java@v3
+        with:
+          distribution: corretto
+          java-version: "17"
+
+      - name: .env 파일 생성
+        run: |
+
+          # .env 파일 생성
+          touch .env
+
+          # .env 파일 작성
+          echo "${{ secrets.ENV_FILE }}" >> .env
+
+          chmod 600 .env
+
+        shell: bash
+
+      - name: 테스트용 pem키 생성
+        run: |
+
+          mkdir -p ./src/main/resources/keys
+
+          touch ./src/main/resources/keys/jwt-public.pem
+          echo "${{ secrets.JWT_PUBLIC_TEST_PEM }}" >> ./src/main/resources/keys/jwt-public.pem
+          chmod 644 ./src/main/resources/keys/jwt-public.pem
+
+          touch ./src/main/resources/keys/jwt-private.pem
+          echo "${{ secrets.JWT_PRIVATE_TEST_PEM }}" >> ./src/main/resources/keys/jwt-private.pem
+          chmod 600 ./src/main/resources/keys/jwt-private.pem
+
+        shell: bash
+
+      - name: sonarqube
+        run: |
+          ./gradlew sonar \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_NAME }} \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+        shell: bash
+
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        with:
+          pollingTimeoutSec: 600
+          scanMetadataReportFile: build/sonar/report-task.txt
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: clean
+        run: |
+          rm .env
+          rm -rf ./src/main/resources/keys
+        shell: bash
+
+  Docker:
+    needs: CI
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Docker Hub 로그인
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Docker Image 빌드 및 태깅
+        run: |
+          VERSION=0.${{ github.run_number }}
+          echo "VERSION=$VERSION"
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:$VERSION .
+          docker tag  ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:$VERSION \
+                      ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:lts
+
+      - name: Docker Image 푸쉬
+        run: |
+          VERSION=0.${{ github.run_number }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:$VERSION
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:lts
+
+  CD:
+    needs: Docker
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: .env 파일 전달
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: application_dev.yml 업로드 (EC2)
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_IP }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: ".env"
+          target: ${{ secrets.EC2_ENV_PWD }}
+          overwrite: true
+
+      - name: DOCKER 컨테이너 실행
+        uses: appleboy/ssh-action@master
+        env:
+          DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_PW:   ${{ secrets.DOCKERHUB_PASSWORD }}
+          IMAGE_NAME:  ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}
+          IMAGE_TAG:   lts
+        with:
+          host: ${{ secrets.EC2_IP }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          envs: DOCKER_USER,DOCKER_PW,IMAGE_NAME,IMAGE_TAG
+          script: |
+            export DOCKER_USER="${DOCKER_USER}"
+            export DOCKER_PW="${DOCKER_PW}"
+            export IMAGE_NAME="${IMAGE_NAME}"
+            export IMAGE_TAG="${IMAGE_TAG}"
+            bash ~/deploy_auth_dev.sh
