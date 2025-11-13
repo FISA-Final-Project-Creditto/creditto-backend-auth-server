@@ -8,9 +8,23 @@ jobs:
   build:
     runs-on: ubuntu-22.04
 
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DB_NAME }}
+        ports: [ '3306:3306' ]
+
     steps:
       - name: checkout
         uses: actions/checkout@v3
+
+      - name: MySQL 초기화 대기
+        run: |
+          sleep 5
+
+        shell: bash
 
       - name: JDK 17 설치
         uses: actions/setup-java@v3
@@ -57,3 +71,8 @@ jobs:
           rm .env
           rm -rf ./src/main/resources/keys
         shell: bash
+
+      - name: Discord CI 성공 알림
+        uses: tenzin1308/discord-notification@v1.0.0
+        with:
+          discord-webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
