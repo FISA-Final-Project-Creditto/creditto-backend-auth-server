@@ -100,6 +100,7 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:lts
 
   CD:
+    needs: CI
     runs-on: ubuntu-22.04
 
     steps:
@@ -107,7 +108,7 @@ jobs:
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
 
-      - name: application_dev.yml 업로드 (EC2)
+      - name: .env 파일 업로드
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.EC2_IP }}
