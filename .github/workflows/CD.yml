@@ -79,14 +79,6 @@ jobs:
           rm -rf ./src/main/resources/keys
         shell: bash
 
-  Docker:
-    needs: CI
-    runs-on: ubuntu-22.04
-
-    steps:
-      - name: 체크아웃
-        uses: actions/checkout@v3
-
       - name: Docker Hub 로그인
         uses: docker/login-action@v2
         with:
@@ -108,7 +100,6 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:lts
 
   CD:
-    needs: Docker
     runs-on: ubuntu-22.04
 
     steps:
