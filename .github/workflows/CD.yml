@@ -50,15 +50,11 @@ jobs:
 
         shell: bash
 
-      - name: build 실행
+      - name: build & sonarqube 실행
         run: |
           chmod +x gradlew
-          ./gradlew clean build -Dspring.profiles.active=dev
-        shell: bash
-
-      - name: sonarqube
-        run: |
-          ./gradlew sonar \
+          ./gradlew clean build sonar
+            -Dspring.profiles.active=dev \
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_NAME }} \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
@@ -142,4 +138,4 @@ jobs:
             export DOCKER_PW="${DOCKER_PW}"
             export IMAGE_NAME="${IMAGE_NAME}"
             export IMAGE_TAG="${IMAGE_TAG}"
-            bash ~/deploy_auth_dev.sh
+            bash ${{ secrets.DEPLOY_SCRIPT_PATH }}
