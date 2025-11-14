@@ -31,7 +31,7 @@ jobs:
           touch .env
 
           # .env 파일 작성
-          echo "${{ secrets.ENV_FILE }}" >> .env
+          echo "${{ secrets.ENV_DEV_FILE }}" >> .env
 
           chmod 600 .env
 
@@ -106,7 +106,7 @@ jobs:
     steps:
       - name: .env 파일 전달
         run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
+          echo "${{ secrets.ENV_DEV_FILE }}" > .env
 
       - name: .env 파일 업로드
         uses: appleboy/scp-action@v0.1.4
