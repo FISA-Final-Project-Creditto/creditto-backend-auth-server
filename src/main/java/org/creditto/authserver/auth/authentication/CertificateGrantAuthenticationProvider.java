@@ -3,6 +3,7 @@ package org.creditto.authserver.auth.authentication;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.creditto.authserver.auth.constants.ClaimConstants;
+import org.creditto.authserver.auth.jwt.CertificateOAuth2TokenGenerator;
 import org.creditto.authserver.certificate.entity.Certificate;
 import org.creditto.authserver.certificate.service.CertificateService;
 import org.creditto.authserver.user.entity.User;
@@ -20,7 +21,6 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
 import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 
 import java.util.*;
 
@@ -39,7 +39,7 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
     private final CertificateService certificateService;
     private final RegisteredClientRepository registeredClientRepository;
     private final OAuth2AuthorizationService authorizationService;
-    private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
+    private final CertificateOAuth2TokenGenerator tokenGenerator;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
