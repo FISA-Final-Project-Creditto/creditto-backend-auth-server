@@ -18,7 +18,9 @@ import java.util.Map;
 
 import static org.creditto.authserver.auth.constants.Constants.USER_AGENT;
 
-// 요청에 대한 GrantType 검증 및 인증 요청 방식 검사
+/**
+ * 요청에 대한 GrantType 검증 및 인증 요청 방식 검사 및 CertificateAuthenticationToken로 변경 후 반환
+ */
 public class CertificateGrantAuthenticationConverter implements AuthenticationConverter {
 
     @Override
@@ -27,7 +29,7 @@ public class CertificateGrantAuthenticationConverter implements AuthenticationCo
 
         AuthorizationGrantType authorizationGrantType = CustomGrantType.CERTIFICATE;
 
-        // GrantType 검증
+        // GrantType 검증 (Certificate)
         if (!authorizationGrantType.getValue().equals(grantType)) {
             return null;
         }

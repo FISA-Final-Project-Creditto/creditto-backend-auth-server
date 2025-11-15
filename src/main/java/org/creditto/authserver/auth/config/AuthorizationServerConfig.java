@@ -8,8 +8,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.creditto.authserver.auth.authentication.CertificateGrantAuthenticationConverter;
 import org.creditto.authserver.auth.authentication.CertificateGrantAuthenticationProvider;
-import org.creditto.authserver.auth.constants.ClaimConstants;
-import org.creditto.authserver.auth.constants.Constants;
+import org.creditto.authserver.auth.jwt.CertificateOAuth2TokenGenerator;
 import org.creditto.authserver.auth.jwt.RsaKeyProperties;
 import org.creditto.authserver.auth.jwt.RsaKeyUtil;
 import org.creditto.authserver.certificate.service.CertificateService;
@@ -26,14 +25,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.core.OAuth2Token;
-import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.core.AuthenticationException;
 
@@ -43,6 +39,8 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+
+import static org.creditto.authserver.global.response.error.ErrorMessage.FAILED_LOAD_RSA;
 
 @Configuration
 @EnableWebSecurity
@@ -143,7 +141,7 @@ public class AuthorizationServerConfig {
             return new ImmutableJWKSet<>(jwkSet);
 
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to load RSA keys", e);
+            throw new IllegalStateException(FAILED_LOAD_RSA, e);
         }
     }
 
@@ -177,56 +175,14 @@ public class AuthorizationServerConfig {
             CertificateService certificateService,
             RegisteredClientRepository registeredClientRepository,
             OAuth2AuthorizationService authorizationService,
-            OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator
+            CertificateOAuth2TokenGenerator certificateTokenGenerator
     ) {
         return new CertificateGrantAuthenticationProvider(
                 certificateService,
                 registeredClientRepository,
                 authorizationService,
-                tokenGenerator
+                certificateTokenGenerator
         );
-    }
-
-    /**
-     * OAuth2 토큰 생성기
-     * Access Token과 Refresh Token을 생성
-     */
-    @Bean
-    public OAuth2TokenGenerator<OAuth2Token> tokenGenerator(
-            JwtEncoder jwtEncoder,
-            OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer
-    ) {
-        JwtGenerator jwtGenerator = new JwtGenerator(jwtEncoder);
-        jwtGenerator.setJwtCustomizer(jwtTokenCustomizer);
-
-        OAuth2AccessTokenGenerator accessTokenGenerator = new OAuth2AccessTokenGenerator();
-        OAuth2RefreshTokenGenerator refreshTokenGenerator = new OAuth2RefreshTokenGenerator();
-
-        return new DelegatingOAuth2TokenGenerator(
-                jwtGenerator,
-                accessTokenGenerator,
-                refreshTokenGenerator
-        );
-    }
-
-    /**
-     * JWT 토큰 커스터마이저
-     * OAuth2Authorization에 저장된 공개 정보를 JWT Claims에 추가
-     */
-    @Bean
-    public OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer() {
-        return context -> {
-            // Access Token일 때만 커스텀 Claims 추가
-            if (context.getTokenType().getValue().equals(Constants.ACCESS_TOKEN)) {
-                OAuth2Authorization authorization = context.getAuthorization();
-                if (authorization != null) {
-                    // OAuth2Authorization attributes에서 공개 가능한 정보를 가져와 JWT Claims에 추가
-                    context.getClaims().claim(ClaimConstants.EXTERNAL_USER_ID, authorization.getAttribute(ClaimConstants.EXTERNAL_USER_ID));
-                    context.getClaims().claim(ClaimConstants.USERNAME, authorization.getAttribute(ClaimConstants.USERNAME));
-                    context.getClaims().claim(ClaimConstants.ROLES, authorization.getAttribute(ClaimConstants.ROLES));
-                }
-            }
-        };
     }
 
     // MVC 예외 위임

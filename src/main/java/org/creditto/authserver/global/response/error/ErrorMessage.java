@@ -34,6 +34,7 @@ public final class ErrorMessage {
     public static final String CERTIFICATE_EXPIRED = "인증서가 만료되었습니다.";
     public static final String CERTIFICATE_AUTH_FAILED = "인증서 인증에 실패했습니다.";
     public static final String SIMPLE_PASSWORD_CHANGE_FAILED = "간편비밀번호 변경에 실패했습니다.";
+    public static final String FAILED_LOAD_RSA = "RSA 키 조회에 실패했습니다.";
 
     /**
      * DENIED - 접근 거부

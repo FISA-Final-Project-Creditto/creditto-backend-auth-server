@@ -2,9 +2,6 @@ package org.creditto.authserver.auth.authentication;
 
 import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-
-import java.util.Collection;
 
 /**
  * 서비스에서 이용할 인증 객체
@@ -34,23 +31,11 @@ public class CertificateAuthenticationToken extends AbstractAuthenticationToken 
         super.setAuthenticated(false); // 미인증
     }
 
-    // 인증 후
-    private CertificateAuthenticationToken(Collection<? extends GrantedAuthority> authorities, String certificateSerial, String clientId, Object principal) {
-        super(authorities);
-        this.certificateSerial = certificateSerial;
-        this.simplePassword = null;
-        this.clientId = clientId;
-        this.principal = principal;
-        super.setAuthenticated(true); // 인증
-    }
-
+    // 익명 인증 객체 (익명 토큰)
     public static CertificateAuthenticationToken createAnonymousToken(String certificateSerial, String simplePassword, String clientId) {
         return new CertificateAuthenticationToken(certificateSerial, simplePassword, clientId);
     }
 
-    public static CertificateAuthenticationToken createAuthenticatedToken(Collection<? extends GrantedAuthority> authorities, String certificateSerial, String clientId, Object user) {
-        return new CertificateAuthenticationToken(authorities, certificateSerial, clientId, user);
-    }
 
     @Override
     public String getCredentials() {
