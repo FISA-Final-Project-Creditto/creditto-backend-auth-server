@@ -6,7 +6,6 @@ import org.creditto.authserver.auth.constants.ClaimConstants;
 import org.creditto.authserver.auth.constants.Constants;
 import org.creditto.authserver.certificate.repository.CertificateRepository;
 import org.creditto.authserver.user.entity.User;
-import org.creditto.authserver.user.enums.UserRoles;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
@@ -59,17 +58,12 @@ public class CertificateJwtCustomizer implements OAuth2TokenCustomizer<JwtEncodi
                     .ifPresent(cert -> {
 
                         User user = cert.getUser();
-                        Set<UserRoles> userRoles = user.getRoles();
 
                         context.getClaims().subject(user.getExternalUserId());
                         context.getClaims().claim(ClaimConstants.EXTERNAL_USER_ID, user.getExternalUserId());
                         context.getClaims().claim(ClaimConstants.USERNAME, user.getName());
                         context.getClaims().claim(ClaimConstants.COUNTRY_CODE, user.getCountryCode());
-
-                        List<String> roleNames = userRoles.stream()
-                                .map(Enum::name)
-                                .toList();
-                        context.getClaims().claim(ClaimConstants.ROLES, roleNames);
+                        context.getClaims().claim(ClaimConstants.ROLES, user.mapUserRolesToList());
                     });
         }
     }

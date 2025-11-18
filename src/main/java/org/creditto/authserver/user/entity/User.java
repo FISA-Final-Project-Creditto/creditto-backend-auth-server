@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -77,5 +78,11 @@ public class User {
                 .birthDate(request.birthDate())
                 .phoneNo(request.phoneNo())
                 .build();
+    }
+
+    public List<String> mapUserRolesToList() {
+        return this.getRoles().stream()
+                .map(UserRoles::name)
+                .toList();
     }
 }

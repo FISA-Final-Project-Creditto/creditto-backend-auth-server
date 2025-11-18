@@ -304,11 +304,14 @@ public class CertificateService {
         User user = userRepository.findByPhoneNo((request.phoneNo()))
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND));
 
-        if (!user.getName().equals(request.name()) ||
-                !user.getBirthDate().equals(request.birthDate()) ||
-                !user.getExternalUserId().equals(request.externalUserId())
-        ) {
-            throw new IllegalArgumentException(INVALID_USER_INFO);
+        if (!user.getName().equals(request.name())) {
+            throw new IllegalArgumentException(INVALID_USERNAME);
+        }
+        if (!user.getBirthDate().equals(request.birthDate())) {
+            throw new IllegalArgumentException(INVALID_USER_BIRTH_DATE);
+        }
+        if (!user.getExternalUserId().equals(request.externalUserId())) {
+            throw new IllegalArgumentException(INVALID_USER_EX_ID);
         }
         return user;
     }

@@ -66,8 +66,7 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
 
         // 4. OAuth2Authorization Builder 생성 및 민감한 정보 저장
         // Jackson 직렬화/역직렬화 안전을 위해 Long은 String으로, Roles는 String 리스트로 저장
-        List<String> roleNames = mapUserRolesToList(user);
-        OAuth2Authorization.Builder authorizationBuilder = buildOAuth2AuthorizationSecret(registeredClient, user, roleNames, certificateSerial, certificate);
+        OAuth2Authorization.Builder authorizationBuilder = buildOAuth2AuthorizationSecret(registeredClient, user, certificateSerial, certificate);
 
         // 5. DefaultOAuth2TokenContext 기본 정보 저장
         DefaultOAuth2TokenContext.Builder tokenContextBuilder = buildOAuth2TokenContextBasic(registeredClient, clientPrincipal, certificateToken);
@@ -142,7 +141,7 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
      * @param certificate user 소유의 인증서
      * @return OAuth2Authorization.Builder
      */
-    private static OAuth2Authorization.Builder buildOAuth2AuthorizationSecret(RegisteredClient registeredClient, User user, List<String> roleNames, String certificateSerial, Certificate certificate) {
+    private static OAuth2Authorization.Builder buildOAuth2AuthorizationSecret(RegisteredClient registeredClient, User user, String certificateSerial, Certificate certificate) {
         return OAuth2Authorization.withRegisteredClient(registeredClient)
                 .principalName(user.getExternalUserId())
                 .authorizationGrantType(new AuthorizationGrantType(CERTIFICATE)) // Grant Type 설정
@@ -152,7 +151,7 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
                 .attribute(ClaimConstants.USERNAME, user.getName()) // User 이름
                 .attribute(ClaimConstants.COUNTRY_CODE, user.getCountryCode()) // User 국가코드
                 .attribute(ClaimConstants.USER_PHONE_NO, user.getPhoneNo()) // User 전화번호
-                .attribute(ClaimConstants.ROLES, roleNames); // User에게 허용된 Roles (List<String>)
+                .attribute(ClaimConstants.ROLES, user.mapUserRolesToList()); // User에게 허용된 Roles (List<String>)
     }
 
     /**
@@ -228,12 +227,6 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
         if (generatedAccessToken == null) {
             throw new IllegalStateException(TOKEN_GENERATION_FAILED);
         }
-    }
-
-    private static List<String> mapUserRolesToList(User user) {
-        return user.getRoles().stream()
-                .map(UserRoles::name)
-                .toList();
     }
 
     @Override

@@ -35,6 +35,9 @@ public final class ErrorMessage {
     public static final String CERTIFICATE_AUTH_FAILED = "인증서 인증에 실패했습니다.";
     public static final String SIMPLE_PASSWORD_CHANGE_FAILED = "간편비밀번호 변경에 실패했습니다.";
     public static final String FAILED_LOAD_RSA = "RSA 키 조회에 실패했습니다.";
+    public static final String INVALID_USERNAME = "사용자 이름 정보가 일치하지 않습니다.";
+    public static final String INVALID_USER_BIRTH_DATE = "사용자 생년월일 정보가 일치하지 않습니다.";
+    public static final String INVALID_USER_EX_ID = "사용자 ID 정보가 일치하지 않습니다.";
 
     /**
      * DENIED - 접근 거부
