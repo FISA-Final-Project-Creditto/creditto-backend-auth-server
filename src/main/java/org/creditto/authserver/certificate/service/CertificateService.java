@@ -124,12 +124,12 @@ public class CertificateService {
 
     /**
      * 인증서 사용기록 저장
-     * @param certificate
-     * @param action
-     * @param success
-     * @param failureReason
-     * @param ipAddress
-     * @param userAgent
+     * @param certificate 인증서
+     * @param action 사용기록
+     * @param success 성공여부
+     * @param failureReason 실패사유
+     * @param ipAddress 기록 IP 주소
+     * @param userAgent 접속 브라우저 User-Agent
      */
     private void recordUsageHistory(Certificate certificate,
                                     HistoryAction action,
@@ -295,13 +295,23 @@ public class CertificateService {
         return encryptionUtil.verifyKeyPair(privateKey, publicKey);
     }
 
+    /**
+     * 인증서 접근 유저 유효성 검증
+     * @param request 인증서 생성 요청 DTO
+     * @return User
+     */
     private User getAndValidateUser(CertificateIssueRequest request) {
         User user = userRepository.findByPhoneNo((request.phoneNo()))
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND));
 
-        if (!user.getName().equals(request.name()) ||
-                !user.getBirthDate().equals(request.birthDate())) {
-            throw new IllegalArgumentException(INVALID_USER_INFO);
+        if (!user.getName().equals(request.name())) {
+            throw new IllegalArgumentException(INVALID_USERNAME);
+        }
+        if (!user.getBirthDate().equals(request.birthDate())) {
+            throw new IllegalArgumentException(INVALID_USER_BIRTH_DATE);
+        }
+        if (!user.getExternalUserId().equals(request.externalUserId())) {
+            throw new IllegalArgumentException(INVALID_USER_EX_ID);
         }
         return user;
     }

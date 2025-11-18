@@ -11,6 +11,9 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * JWT 토큰 커스터마이저
  * OAuth2Authorization에 저장된 공개 정보를 JWT Claims에 추가
@@ -35,10 +38,12 @@ public class CertificateJwtCustomizer implements OAuth2TokenCustomizer<JwtEncodi
             Object extId = authorization.getAttribute(ClaimConstants.EXTERNAL_USER_ID);
             Object username = authorization.getAttribute(ClaimConstants.USERNAME);
             Object roles = authorization.getAttribute(ClaimConstants.ROLES);
+            Object countryCode = authorization.getAttribute(ClaimConstants.COUNTRY_CODE);
 
             if (extId != null) context.getClaims().claim(ClaimConstants.EXTERNAL_USER_ID, extId);
             if (username != null) context.getClaims().claim(ClaimConstants.USERNAME, username);
             if (roles != null) context.getClaims().claim(ClaimConstants.ROLES, roles);
+            if (countryCode != null) context.getClaims().claim(ClaimConstants.COUNTRY_CODE, countryCode);
 
             return;
         }
@@ -57,7 +62,8 @@ public class CertificateJwtCustomizer implements OAuth2TokenCustomizer<JwtEncodi
                         context.getClaims().subject(user.getExternalUserId());
                         context.getClaims().claim(ClaimConstants.EXTERNAL_USER_ID, user.getExternalUserId());
                         context.getClaims().claim(ClaimConstants.USERNAME, user.getName());
-                        context.getClaims().claim(ClaimConstants.ROLES, user.getRoles());
+                        context.getClaims().claim(ClaimConstants.COUNTRY_CODE, user.getCountryCode());
+                        context.getClaims().claim(ClaimConstants.ROLES, user.mapUserRolesToList());
                     });
         }
     }
