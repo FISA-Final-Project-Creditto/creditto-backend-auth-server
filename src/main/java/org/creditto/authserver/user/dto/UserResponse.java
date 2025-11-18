@@ -10,6 +10,7 @@ public record UserResponse(
         String externalUserId,
         String name,
         LocalDate birthDate,
+        String countryCode,
         String phoneNo,
         String address
 ) {
@@ -18,6 +19,7 @@ public record UserResponse(
                 .externalUserId(user.getExternalUserId())
                 .name(user.getName())
                 .birthDate(user.getBirthDate())
+                .countryCode(user.getCountryCode())
                 .phoneNo(user.getPhoneNo())
                 .address(user.getAddress())
                 .build();

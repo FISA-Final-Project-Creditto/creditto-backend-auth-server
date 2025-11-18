@@ -3,6 +3,7 @@ package org.creditto.authserver.user.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.creditto.authserver.user.dto.UserRegisterRequest;
+import org.creditto.authserver.user.enums.UserRoles;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -29,15 +30,16 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "birth_date")
+    @Column(nullable = false, name = "birth_date")
     private LocalDate birthDate;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "phone_no")
     private String phoneNo;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "address")
     private String address;
 
+    @Column(nullable = false, name = "country_code")
     private String countryCode;
 
     @Column(unique = true)
@@ -46,9 +48,10 @@ public class User {
     private LocalDate expiredAt;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")
-    private Set<String> roles;
+    private Set<UserRoles> roles;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -69,6 +72,8 @@ public class User {
         return User.builder()
                 .name(request.name())
                 .address(request.address())
+                .countryCode(request.countryCode())
+                .roles(Set.of(UserRoles.CUSTOMER))
                 .birthDate(request.birthDate())
                 .phoneNo(request.phoneNo())
                 .build();

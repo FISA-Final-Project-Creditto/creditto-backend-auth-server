@@ -7,6 +7,10 @@ import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 public record CertificateIssueRequest(
+
+        @NotBlank(message = "유저 ID는 필수입니다")
+        String externalUserId,
+
         @NotBlank(message = "이름은 필수입니다")
         String name,
 

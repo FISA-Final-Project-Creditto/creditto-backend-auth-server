@@ -17,4 +17,5 @@ public final class ClaimConstants {
     public static final String CERT_SERIAL_CAMEL = "certificateSerial";
     public static final String AUTH_METHOD = "auth_method";
     public static final String AUTHORITIES = "authorities";
+    public static final String COUNTRY_CODE = "countryCode";
 }
