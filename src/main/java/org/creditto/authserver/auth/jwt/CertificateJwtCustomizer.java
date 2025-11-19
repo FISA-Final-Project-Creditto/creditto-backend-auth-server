@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * JWT 토큰 커스터마이저
@@ -60,19 +61,16 @@ public class CertificateJwtCustomizer implements OAuth2TokenCustomizer<JwtEncodi
     }
 
     private void addUserClaims(OAuth2Authorization authorization, JwtEncodingContext context) {
-        Object extId = authorization.getAttribute(ClaimConstants.EXTERNAL_USER_ID);
-        Object username = authorization.getAttribute(ClaimConstants.USERNAME);
-        Object countryCode = authorization.getAttribute(ClaimConstants.COUNTRY_CODE);
-
-        if (extId != null) {
-            context.getClaims().claim(ClaimConstants.EXTERNAL_USER_ID, extId);
-        }
-        if (username != null) {
-            context.getClaims().claim(ClaimConstants.USERNAME, username);
-        }
-        if (countryCode != null) {
-            context.getClaims().claim(ClaimConstants.COUNTRY_CODE, countryCode);
-        }
+        Stream.of(
+                ClaimConstants.EXTERNAL_USER_ID,
+                ClaimConstants.USERNAME,
+                ClaimConstants.COUNTRY_CODE
+        ).forEach(claimName -> {
+            Object claimValue = authorization.getAttribute(claimName);
+            if (claimValue != null) {
+                context.getClaims().claim(claimName, claimValue);
+            }
+        });
     }
 
     private void addRoleClaims(OAuth2Authorization authorization, JwtEncodingContext context) {

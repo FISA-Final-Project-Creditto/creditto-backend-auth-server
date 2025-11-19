@@ -141,7 +141,6 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
      * @return OAuth2Authorization.Builder
      */
     private static OAuth2Authorization.Builder buildOAuth2AuthorizationSecret(RegisteredClient registeredClient, User user, String certificateSerial, Certificate certificate) {
-        String rolesCsv = String.join(",", user.mapUserRolesToList());
         return OAuth2Authorization.withRegisteredClient(registeredClient)
                 .principalName(user.getExternalUserId())
                 .authorizationGrantType(new AuthorizationGrantType(CERTIFICATE)) // Grant Type 설정
@@ -151,7 +150,7 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
                 .attribute(ClaimConstants.USERNAME, user.getName()) // User 이름
                 .attribute(ClaimConstants.COUNTRY_CODE, user.getCountryCode()) // User 국가코드
                 .attribute(ClaimConstants.USER_PHONE_NO, user.getPhoneNo()) // User 전화번호
-                .attribute(ClaimConstants.ROLES, rolesCsv);
+                .attribute(ClaimConstants.ROLES, user.mapRoleListToString());
     }
 
     /**
