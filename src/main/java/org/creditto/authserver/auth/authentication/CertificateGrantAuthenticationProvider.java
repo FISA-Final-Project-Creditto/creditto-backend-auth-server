@@ -7,7 +7,6 @@ import org.creditto.authserver.auth.jwt.CertificateOAuth2TokenGenerator;
 import org.creditto.authserver.certificate.entity.Certificate;
 import org.creditto.authserver.certificate.service.CertificateService;
 import org.creditto.authserver.user.entity.User;
-import org.creditto.authserver.user.enums.UserRoles;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -142,6 +141,7 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
      * @return OAuth2Authorization.Builder
      */
     private static OAuth2Authorization.Builder buildOAuth2AuthorizationSecret(RegisteredClient registeredClient, User user, String certificateSerial, Certificate certificate) {
+        String rolesCsv = String.join(",", user.mapUserRolesToList());
         return OAuth2Authorization.withRegisteredClient(registeredClient)
                 .principalName(user.getExternalUserId())
                 .authorizationGrantType(new AuthorizationGrantType(CERTIFICATE)) // Grant Type 설정
@@ -151,7 +151,7 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
                 .attribute(ClaimConstants.USERNAME, user.getName()) // User 이름
                 .attribute(ClaimConstants.COUNTRY_CODE, user.getCountryCode()) // User 국가코드
                 .attribute(ClaimConstants.USER_PHONE_NO, user.getPhoneNo()) // User 전화번호
-                .attribute(ClaimConstants.ROLES, user.mapUserRolesToList()); // User에게 허용된 Roles (List<String>)
+                .attribute(ClaimConstants.ROLES, rolesCsv);
     }
 
     /**
