@@ -85,4 +85,8 @@ public class User {
                 .map(UserRoles::name)
                 .toList();
     }
+
+    public String mapRoleListToString() {
+        return String.join(",", this.mapUserRolesToList());
+    }
 }

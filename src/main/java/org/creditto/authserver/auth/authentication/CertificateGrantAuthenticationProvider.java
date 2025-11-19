@@ -7,7 +7,6 @@ import org.creditto.authserver.auth.jwt.CertificateOAuth2TokenGenerator;
 import org.creditto.authserver.certificate.entity.Certificate;
 import org.creditto.authserver.certificate.service.CertificateService;
 import org.creditto.authserver.user.entity.User;
-import org.creditto.authserver.user.enums.UserRoles;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -151,7 +150,7 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
                 .attribute(ClaimConstants.USERNAME, user.getName()) // User 이름
                 .attribute(ClaimConstants.COUNTRY_CODE, user.getCountryCode()) // User 국가코드
                 .attribute(ClaimConstants.USER_PHONE_NO, user.getPhoneNo()) // User 전화번호
-                .attribute(ClaimConstants.ROLES, user.mapUserRolesToList()); // User에게 허용된 Roles (List<String>)
+                .attribute(ClaimConstants.ROLES, user.mapRoleListToString());
     }
 
     /**
