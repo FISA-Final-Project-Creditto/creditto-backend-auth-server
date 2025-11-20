@@ -220,7 +220,11 @@ public class RegisteredClientMapper {
         }
 
         if (value instanceof String text && !text.isBlank()) {
-            return Duration.parse(text);
+            try {
+                return Duration.parse(text);
+            } catch (java.time.format.DateTimeParseException e) {
+                throw new IllegalArgumentException(INVALID_DURATION + value, e);
+            }
         }
 
         throw new IllegalArgumentException(INVALID_DURATION + value);
