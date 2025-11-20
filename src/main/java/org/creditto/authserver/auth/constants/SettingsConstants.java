@@ -10,7 +10,10 @@ public final class SettingsConstants {
     public static final String JWK_SET_URL = "jwkSetUrl";
 
     // TokenSettings
-    public static final String ACCESS_TOKEN_TTL = "accessTokenTimeToLive";
-    public static final String REFRESH_TOKEN_TTL = "refreshTokenTimeToLive";
-    public static final String REUSE_REFRESH_TOKENS = "reuseRefreshTokens";
+    public static final String ACCESS_TOKEN_TTL = "settings.token.access-token-time-to-live";
+    public static final String LEGACY_ACCESS_TOKEN_TTL = "accessTokenTimeToLive";
+    public static final String REFRESH_TOKEN_TTL = "settings.token.refresh-token-time-to-live";
+    public static final String LEGACY_REFRESH_TOKEN_TTL = "refreshTokenTimeToLive";
+    public static final String REUSE_REFRESH_TOKENS = "settings.token.reuse-refresh-tokens";
+    public static final String LEGACY_REUSE_REFRESH_TOKENS = "reuseRefreshTokens";
 }
