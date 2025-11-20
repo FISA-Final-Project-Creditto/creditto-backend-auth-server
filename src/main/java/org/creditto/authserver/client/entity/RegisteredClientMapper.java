@@ -3,7 +3,6 @@ package org.creditto.authserver.client.entity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.creditto.authserver.auth.constants.Constants;
 import org.creditto.authserver.auth.constants.SettingsConstants;
 import org.creditto.authserver.client.entity.sub.*;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -13,7 +12,9 @@ import org.springframework.security.oauth2.server.authorization.settings.ClientS
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.creditto.authserver.auth.constants.Constants.SECONDS;
 import static org.creditto.authserver.global.response.error.ErrorMessage.*;
@@ -173,29 +174,14 @@ public class RegisteredClientMapper {
 
             TokenSettings.Builder builder = TokenSettings.builder();
 
-            if (settings.containsKey(SettingsConstants.ACCESS_TOKEN_TTL)) {
-                Map<String, Object> ttl = (Map<String, Object>) settings.get(SettingsConstants.ACCESS_TOKEN_TTL);
-                builder.accessTokenTimeToLive(
-                        java.time.Duration.ofSeconds(
-                                ((Number) ttl.get(Constants.SECONDS)).longValue()
-                        )
-                );
-            }
+            extractDuration(settings, SettingsConstants.ACCESS_TOKEN_TTL, SettingsConstants.LEGACY_ACCESS_TOKEN_TTL)
+                    .ifPresent(builder::accessTokenTimeToLive);
 
-            if (settings.containsKey(SettingsConstants.REFRESH_TOKEN_TTL)) {
-                Map<String, Object> ttl = (Map<String, Object>) settings.get(SettingsConstants.REFRESH_TOKEN_TTL);
-                builder.refreshTokenTimeToLive(
-                        java.time.Duration.ofSeconds(
-                                ((Number) ttl.get(SECONDS)).longValue()
-                        )
-                );
-            }
+            extractDuration(settings, SettingsConstants.REFRESH_TOKEN_TTL, SettingsConstants.LEGACY_REFRESH_TOKEN_TTL)
+                    .ifPresent(builder::refreshTokenTimeToLive);
 
-            if (settings.containsKey(SettingsConstants.REUSE_REFRESH_TOKENS)) {
-                builder.reuseRefreshTokens(
-                        (Boolean) settings.get(SettingsConstants.REUSE_REFRESH_TOKENS)
-                );
-            }
+            extractBoolean(settings, SettingsConstants.REUSE_REFRESH_TOKENS, SettingsConstants.LEGACY_REUSE_REFRESH_TOKENS)
+                    .ifPresent(builder::reuseRefreshTokens);
 
             return builder.build();
 
@@ -213,5 +199,45 @@ public class RegisteredClientMapper {
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException(FAILED_SERIALIZED, e);
         }
+    }
+
+    private Optional<Duration> extractDuration(Map<String, Object> settings, String... keys) {
+        for (String key : keys) {
+            if (settings.containsKey(key)) {
+                return Optional.of(convertToDuration(settings.get(key)));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Duration convertToDuration(Object value) {
+        if (value instanceof Map<?, ?> ttl && ttl.containsKey(SECONDS)) {
+            return Duration.ofSeconds(((Number) ttl.get(SECONDS)).longValue());
+        }
+
+        if (value instanceof Number number) {
+            return Duration.ofSeconds(number.longValue());
+        }
+
+        if (value instanceof String text && !text.isBlank()) {
+            return Duration.parse(text);
+        }
+
+        throw new IllegalArgumentException(INVALID_DURATION + value);
+    }
+
+    private Optional<Boolean> extractBoolean(Map<String, Object> settings, String... keys) {
+        for (String key : keys) {
+            if (settings.containsKey(key)) {
+                Object value = settings.get(key);
+                if (value instanceof Boolean bool) {
+                    return Optional.of(bool);
+                }
+                if (value instanceof String text) {
+                    return Optional.of(Boolean.parseBoolean(text));
+                }
+            }
+        }
+        return Optional.empty();
     }
 }
