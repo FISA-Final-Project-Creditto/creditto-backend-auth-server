@@ -18,24 +18,14 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
         // 허용할 Origin
-        config.setAllowedOrigins(
-                List.of(clientIp)
-        );
-
+        config.addAllowedOriginPattern("*");
         // 허용할 HTTP 메서드
-        config.setAllowedMethods(
-                List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-        );
-
-        // 허용할 헤더들 (Authorization, Content-Type 등)
-        config.setAllowedHeaders(List.of("*"));
-
-        // 응답에서 노출하고 싶은 헤더 (선택)
+        config.addAllowedMethod("*");
+        // 허용할 Header
+        config.addAllowedHeader("*");
+        // 응답시 노출할 Header
         config.setExposedHeaders(List.of("Authorization", "Content-Type"));
-
-        // 쿠키/Authorization 헤더 같이 보낼 거면 true
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
