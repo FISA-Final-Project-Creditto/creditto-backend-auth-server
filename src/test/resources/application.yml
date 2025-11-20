@@ -39,3 +39,5 @@ CREDITTO_ID: test-creditto-client
 CREDITTO_SECRET: test-secret
 CREDITTO_NAME: Test Creditto
 CREDITTO_URL: http://localhost:8081
+
+CLIENT_IP: "*"
