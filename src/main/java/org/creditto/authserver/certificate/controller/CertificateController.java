@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.util.Map;
+
 import static org.creditto.authserver.auth.constants.Constants.USER_AGENT;
 
 @Slf4j
@@ -36,5 +38,13 @@ public class CertificateController {
         String ipAddress = request.getRemoteAddr();
         String userAgent = request.getHeader(USER_AGENT);
         return ApiResponseUtil.success(SuccessCode.OK, certificateService.issueCertificate(certificateIssueRequest, ipAddress, userAgent));
+    }
+
+    @GetMapping("/serialNumber")
+    public ResponseEntity<BaseResponse<Map<String, String>>> getCertificateSerialNum(
+            @RequestParam(name = "username") String username,
+            @RequestParam(name = "phoneNo") String phoneNo
+    ) {
+        return ApiResponseUtil.success(SuccessCode.OK, certificateService.getSerialNumberByUser(username, phoneNo));
     }
 }

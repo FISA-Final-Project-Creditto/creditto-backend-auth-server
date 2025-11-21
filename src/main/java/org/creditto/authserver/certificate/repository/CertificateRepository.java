@@ -20,11 +20,9 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 
     List<Certificate> findByUser(User user);
 
-    List<Certificate> findByUserAndStatus(User user, CertificateStatus status);
+    Optional<Certificate> findByUserAndStatus(User user, CertificateStatus status);
 
     long countByUserAndStatus(User user, CertificateStatus status);
-
-    List<Certificate> findByStatusAndExpiresAtBefore(CertificateStatus status, LocalDateTime dateTime);
 
     boolean existsCertificateByStatusAndUser(CertificateStatus status, User user);
 }
