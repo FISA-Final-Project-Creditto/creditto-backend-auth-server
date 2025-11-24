@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
 
     services:
       mysql:
@@ -25,12 +25,6 @@ jobs:
           sleep 5
 
         shell: bash
-
-      - name: JDK 17 설치
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'corretto'
-          java-version: '17'
 
       - name: .env 파일 생성
         run: |
@@ -86,7 +80,10 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: clean
+        if: always()
         run: |
           rm .env
           rm -rf ./src/main/resources/keys
+          rm -rf build
+
         shell: bash
