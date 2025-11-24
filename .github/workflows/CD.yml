@@ -10,17 +10,11 @@ concurrency:
 
 jobs:
   CI:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
 
     steps:
       - name: 체크아웃
         uses: actions/checkout@v3
-
-      - name: JDK17 설치
-        uses: actions/setup-java@v3
-        with:
-          distribution: corretto
-          java-version: "17"
 
       - name: .env 파일 생성
         run: |
@@ -72,6 +66,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: clean
+        if: always()
         run: |
           rm .env
           rm -rf ./src/main/resources/keys
@@ -99,7 +94,7 @@ jobs:
 
   CD:
     needs: CI
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
 
     steps:
       - name: .env 파일 전달
@@ -134,3 +129,12 @@ jobs:
             export IMAGE_NAME="${IMAGE_NAME}"
             export IMAGE_TAG="${IMAGE_TAG}"
             bash ${{ secrets.DEPLOY_SCRIPT_PATH }}
+
+      - name: CleanUp
+        if: always()
+        run: |
+          rm .env
+          docker image prune -a
+          rm -rf build
+
+        shell: bash
