@@ -142,11 +142,11 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
      */
     private static OAuth2Authorization.Builder buildOAuth2AuthorizationSecret(RegisteredClient registeredClient, User user, String certificateSerial, Certificate certificate) {
         return OAuth2Authorization.withRegisteredClient(registeredClient)
-                .principalName(user.getExternalUserId())
+                .principalName(user.getId().toString())
                 .authorizationGrantType(new AuthorizationGrantType(CERTIFICATE)) // Grant Type 설정
                 .attribute(ClaimConstants.CERT_SERIAL_CAMEL, certificateSerial) // 인증서 Serial Number
                 .attribute(ClaimConstants.CERT_ID, certificate.getId().toString()) // 인증서 Id
-                .attribute(ClaimConstants.EXTERNAL_USER_ID, user.getExternalUserId()) // User의 외부노출 Id
+                .attribute(ClaimConstants.USER_ID, user.getId().toString()) // User Id
                 .attribute(ClaimConstants.USERNAME, user.getName()) // User 이름
                 .attribute(ClaimConstants.COUNTRY_CODE, user.getCountryCode()) // User 국가코드
                 .attribute(ClaimConstants.USER_PHONE_NO, user.getPhoneNo()) // User 전화번호
@@ -216,7 +216,7 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
 
     private static Map<String, Object> oAuth2AuthenticationTokenParameter(User user) {
         Map<String, Object> additionalParameters = new HashMap<>();
-        additionalParameters.put(ClaimConstants.EXTERNAL_USER_ID, user.getExternalUserId());
+        additionalParameters.put(ClaimConstants.USER_ID, user.getId().toString());
         additionalParameters.put(ClaimConstants.USERNAME, user.getName());
         additionalParameters.put(ClaimConstants.COUNTRY_CODE, user.getCountryCode());
         return additionalParameters;

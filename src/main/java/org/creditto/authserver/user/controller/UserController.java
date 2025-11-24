@@ -34,10 +34,10 @@ public class UserController {
     /**
      * 사용자 조회 (ID)
      */
-    @GetMapping("/{externalUserId}")
-    public ResponseEntity<BaseResponse<UserResponse>> getUser(@PathVariable String externalUserId) {
-        log.info("사용자 조회 요청 - ID: {}", externalUserId);
-        return ApiResponseUtil.success(SuccessCode.OK, userService.getUser(externalUserId));
+    @GetMapping("/{userId}")
+    public ResponseEntity<BaseResponse<UserResponse>> getUser(@PathVariable Long userId) {
+        log.info("사용자 조회 요청 - ID: {}", userId);
+        return ApiResponseUtil.success(SuccessCode.OK, userService.getUser(userId));
     }
 
     /**
