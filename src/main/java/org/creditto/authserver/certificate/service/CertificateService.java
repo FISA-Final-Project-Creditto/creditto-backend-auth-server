@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.creditto.authserver.auth.utils.AESUtil;
 import org.creditto.authserver.auth.utils.CertificateEncryptionUtil;
+import org.creditto.authserver.certificate.dto.CertificateSerialRequest;
 import org.creditto.authserver.certificate.enums.CertificateStatus;
 import org.creditto.authserver.certificate.dto.CertificateIssueRequest;
 import org.creditto.authserver.certificate.dto.CertificateIssueResponse;
@@ -28,8 +29,10 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import static org.creditto.authserver.auth.constants.ParameterConstants.CERTIFICATE_SERIAL;
 import static org.creditto.authserver.global.response.error.ErrorMessage.*;
 
 @Slf4j
@@ -145,6 +148,16 @@ public class CertificateService {
                 certificate.getSerialNumber(), action, success);
     }
 
+    public Map<String, String> getSerialNumberByUser(CertificateSerialRequest certificateSerialRequest) {
+        User user = userRepository.findByNameAndPhoneNo(certificateSerialRequest.username(), certificateSerialRequest.phoneNo())
+                .orElseThrow(() -> new IllegalArgumentException(INVALID_USER_INFO));
+
+        Certificate certificate = certificateRepository.findByUserAndStatus(user, CertificateStatus.ACTIVE)
+                .orElseThrow(() -> new CertificateNotFoundException(CERTIFICATE_NOT_FOUND));
+
+        return Map.of(CERTIFICATE_SERIAL, certificate.getSerialNumber());
+    }
+
 
     public List<CertificateUsageHistory> getCertificateHistory(String serialNumber, String simplePassword) {
         Certificate certificate = getCertificateBySerialNumber(serialNumber);
@@ -174,11 +187,12 @@ public class CertificateService {
     /**
      * 활성 인증서 목록 조회
      */
-    public List<Certificate> getActiveCertificates(Long userId) {
+    public Certificate getActiveCertificates(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND));
 
-        return certificateRepository.findByUserAndStatus(user, CertificateStatus.ACTIVE);
+        return certificateRepository.findByUserAndStatus(user, CertificateStatus.ACTIVE)
+                .orElseThrow(() -> new CertificateNotFoundException(CERTIFICATE_NOT_FOUND));
     }
 
     /**
