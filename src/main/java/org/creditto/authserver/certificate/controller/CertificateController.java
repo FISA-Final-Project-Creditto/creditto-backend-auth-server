@@ -43,7 +43,7 @@ public class CertificateController {
 
     @PostMapping("/serialNumber")
     public ResponseEntity<BaseResponse<Map<String, String>>> getCertificateSerialNum(
-            @Valid CertificateSerialRequest certificateSerialRequest
+            @Valid @RequestBody CertificateSerialRequest certificateSerialRequest
     ) {
         return ApiResponseUtil.success(SuccessCode.OK, certificateService.getSerialNumberByUser(certificateSerialRequest));
     }
