@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.creditto.authserver.certificate.dto.CertificateIssueRequest;
 import org.creditto.authserver.certificate.dto.CertificateIssueResponse;
+import org.creditto.authserver.certificate.dto.CertificateSerialRequest;
 import org.creditto.authserver.certificate.service.CertificateService;
 import org.creditto.authserver.global.response.ApiResponseUtil;
 import org.creditto.authserver.global.response.BaseResponse;
@@ -40,11 +41,10 @@ public class CertificateController {
         return ApiResponseUtil.success(SuccessCode.OK, certificateService.issueCertificate(certificateIssueRequest, ipAddress, userAgent));
     }
 
-    @GetMapping("/serialNumber")
+    @PostMapping("/serialNumber")
     public ResponseEntity<BaseResponse<Map<String, String>>> getCertificateSerialNum(
-            @RequestParam(name = "username") String username,
-            @RequestParam(name = "phoneNo") String phoneNo
+            @Valid CertificateSerialRequest certificateSerialRequest
     ) {
-        return ApiResponseUtil.success(SuccessCode.OK, certificateService.getSerialNumberByUser(username, phoneNo));
+        return ApiResponseUtil.success(SuccessCode.OK, certificateService.getSerialNumberByUser(certificateSerialRequest));
     }
 }

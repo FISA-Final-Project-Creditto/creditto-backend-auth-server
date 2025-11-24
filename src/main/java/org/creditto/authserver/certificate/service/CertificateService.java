@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.creditto.authserver.auth.utils.AESUtil;
 import org.creditto.authserver.auth.utils.CertificateEncryptionUtil;
+import org.creditto.authserver.certificate.dto.CertificateSerialRequest;
 import org.creditto.authserver.certificate.enums.CertificateStatus;
 import org.creditto.authserver.certificate.dto.CertificateIssueRequest;
 import org.creditto.authserver.certificate.dto.CertificateIssueResponse;
@@ -147,8 +148,8 @@ public class CertificateService {
                 certificate.getSerialNumber(), action, success);
     }
 
-    public Map<String, String> getSerialNumberByUser(String username, String phoneNo) {
-        User user = userRepository.findByNameAndPhoneNo(username, phoneNo)
+    public Map<String, String> getSerialNumberByUser(CertificateSerialRequest certificateSerialRequest) {
+        User user = userRepository.findByNameAndPhoneNo(certificateSerialRequest.username(), certificateSerialRequest.phoneNo())
                 .orElseThrow(() -> new IllegalArgumentException(INVALID_USER_INFO));
 
         Certificate certificate = certificateRepository.findByUserAndStatus(user, CertificateStatus.ACTIVE)
