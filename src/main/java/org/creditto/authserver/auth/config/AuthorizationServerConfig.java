@@ -83,6 +83,7 @@ public class AuthorizationServerConfig {
                                 )
                                 .oidc(Customizer.withDefaults()) // OpenID Connect 활성화
                 )
+                .cors(Customizer.withDefaults())
                 // 이외 요청에 대해선 인증처리
                 .authorizeHttpRequests(authorize ->
                         authorize.anyRequest().authenticated()
@@ -116,6 +117,7 @@ public class AuthorizationServerConfig {
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/user/**", "/api/certificate/**", "/api/client/**")
                 )
+                .cors(Customizer.withDefaults())
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler)
