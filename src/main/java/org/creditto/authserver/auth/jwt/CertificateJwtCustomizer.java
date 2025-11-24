@@ -51,8 +51,8 @@ public class CertificateJwtCustomizer implements OAuth2TokenCustomizer<JwtEncodi
 
                         User user = cert.getUser();
 
-                        context.getClaims().subject(user.getExternalUserId());
-                        context.getClaims().claim(ClaimConstants.EXTERNAL_USER_ID, user.getExternalUserId());
+                        context.getClaims().subject(user.getId().toString());
+                        context.getClaims().claim(ClaimConstants.USER_ID, user.getId().toString());
                         context.getClaims().claim(ClaimConstants.USERNAME, user.getName());
                         context.getClaims().claim(ClaimConstants.COUNTRY_CODE, user.getCountryCode());
                         context.getClaims().claim(ClaimConstants.ROLES, user.mapUserRolesToList());
@@ -62,7 +62,7 @@ public class CertificateJwtCustomizer implements OAuth2TokenCustomizer<JwtEncodi
 
     private void addUserClaims(OAuth2Authorization authorization, JwtEncodingContext context) {
         Stream.of(
-                ClaimConstants.EXTERNAL_USER_ID,
+                ClaimConstants.USER_ID,
                 ClaimConstants.USERNAME,
                 ClaimConstants.COUNTRY_CODE
         ).forEach(claimName -> {

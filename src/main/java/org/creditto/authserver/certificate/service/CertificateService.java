@@ -315,17 +315,17 @@ public class CertificateService {
      * @return User
      */
     private User getAndValidateUser(CertificateIssueRequest request) {
-        User user = userRepository.findByPhoneNo((request.phoneNo()))
+        User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND));
 
+        if (!user.getPhoneNo().equals(request.phoneNo())) {
+            throw new IllegalArgumentException(INVALID_USER_INFO);
+        }
         if (!user.getName().equals(request.name())) {
             throw new IllegalArgumentException(INVALID_USERNAME);
         }
         if (!user.getBirthDate().equals(request.birthDate())) {
             throw new IllegalArgumentException(INVALID_USER_BIRTH_DATE);
-        }
-        if (!user.getExternalUserId().equals(request.externalUserId())) {
-            throw new IllegalArgumentException(INVALID_USER_EX_ID);
         }
         return user;
     }

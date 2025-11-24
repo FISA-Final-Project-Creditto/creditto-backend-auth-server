@@ -18,6 +18,7 @@ public enum ErrorBaseCode implements ErrorCode {
     NOT_READABLE(HttpStatus.BAD_REQUEST, 400, "JSON 혹은 REQUEST BODY 필드 오류 입니다."),
     INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, 400, "BODY 유효성 검사 실패 오류입니다."),
     OAUTH_UNSUPPORTED_GRANT_TYPE(HttpStatus.BAD_REQUEST, 40011, "지원하지 않는 Grant Type 입니다."),
+    PARAMETER_TYPE_MISS_MATCH(HttpStatus.BAD_REQUEST, 40012, "파라미터 타입 오류입니다."),
 
     /**
      * 401 UNAUTHORIZED - 리소스 접근 권한

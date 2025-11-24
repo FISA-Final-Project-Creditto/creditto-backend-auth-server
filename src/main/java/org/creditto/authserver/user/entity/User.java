@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -43,9 +42,6 @@ public class User {
     @Column(nullable = false, name = "country_code")
     private String countryCode;
 
-    @Column(unique = true)
-    private String externalUserId;
-
     private LocalDate expiredAt;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -61,13 +57,6 @@ public class User {
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
-    @PostPersist
-    protected void onCreate() {
-        if (this.externalUserId == null) {
-            this.externalUserId = UUID.randomUUID().toString();
-        }
-    }
 
     public static User create (UserRegisterRequest request) {
         return User.builder()
