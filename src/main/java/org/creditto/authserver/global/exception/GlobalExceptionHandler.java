@@ -23,6 +23,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -50,6 +51,16 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining("\n"));
         logWarn(e);
         return ApiResponseUtil.failure(ErrorBaseCode.INVALID_REQUEST_BODY, errorMessage);
+    }
+
+    /**
+     * 400 - MethodArgumentTypeMismatchException
+     * 예외 내용 : 파라미터 타입 오류
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<BaseResponse<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        logWarn(e);
+        return ApiResponseUtil.failure(ErrorBaseCode.PARAMETER_TYPE_MISS_MATCH);
     }
 
     /**

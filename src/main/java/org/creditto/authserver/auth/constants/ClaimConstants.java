@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 public final class ClaimConstants {
 
     public static final String USER_ID = "user_id";
-    public static final String EXTERNAL_USER_ID = "externalUserId";
     public static final String USERNAME = "userName";
     public static final String ROLES = "roles";
     public static final String NAME = "name";
