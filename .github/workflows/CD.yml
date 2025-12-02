@@ -129,6 +129,32 @@ jobs:
             export IMAGE_NAME="${IMAGE_NAME}"
             export IMAGE_TAG="${IMAGE_TAG}"
             bash ${{ secrets.DEPLOY_SCRIPT_PATH }}
+            
+
+      - name: Health Check
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_IP }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            sleep 5;
+            echo "Health Check 시작...🩺"
+
+            for i in {1..10}
+            do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.HEALTH_URL }})
+              if [ "$STATUS" -eq 200 ]; then
+                echo "✅ 서버 정상 응답 (HTTP 200)"
+                exit 0
+              fi
+
+              echo "⏳ 서버 기동 대기중... ($i/10)"
+              sleep 5
+            done
+
+            echo "❌ Health Check 실패"
+            exit 1
 
       - name: CleanUp
         if: always()

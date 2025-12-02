@@ -17,6 +17,12 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+
 server:
   port: 9000
 
