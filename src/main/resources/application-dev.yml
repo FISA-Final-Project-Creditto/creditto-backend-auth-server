@@ -11,7 +11,7 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.MySQL8Dialect
 
   config:
@@ -23,6 +23,8 @@ server:
 
 logging:
   config: classpath:logback-dev.xml
+  level:
+    org.hibernate.sql: DEBUG
 
 auth:
   jwt:
