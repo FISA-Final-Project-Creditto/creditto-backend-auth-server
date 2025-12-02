@@ -138,7 +138,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            sleep 5;
+            sleep 10;
             echo "Health Check 시작...🩺"
 
             for i in {1..10}
@@ -150,7 +150,7 @@ jobs:
               fi
 
               echo "⏳ 서버 기동 대기중... ($i/10)"
-              sleep 5
+              sleep 10
             done
 
             echo "❌ Health Check 실패"
