@@ -147,7 +147,7 @@ class CertificateServiceTest {
                 "encrypted-key",
                 "salt",
                 LocalDateTime.of(2024, 1, 1, 12, 0),
-                LocalDateTime.of(2024, 1, 1, 12, 0).plusYears(1)
+                LocalDateTime.of(2099, 1, 1, 12, 0).plusYears(1)
         );
 
         when(certificateRepository.findBySerialNumber("serial-123")).thenReturn(Optional.of(certificate));
