@@ -18,14 +18,7 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
 
 management:
-  endpoint:
-    info:
-      access: read_only
-    health:
-      access: read_only
   endpoints:
-    access:
-      default: none
     web:
       exposure:
         include: health, info

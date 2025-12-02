@@ -25,6 +25,7 @@ logging:
   config: classpath:logback-dev.xml
   level:
     org.hibernate.sql: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
 
 auth:
   jwt:
