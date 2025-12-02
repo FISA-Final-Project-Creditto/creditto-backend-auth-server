@@ -35,7 +35,6 @@ public class CertificateController {
             @Valid @RequestBody CertificateIssueRequest certificateIssueRequest,
             HttpServletRequest request
     ) {
-        log.info("인증서 발급 요청 - 전화번호: {}", certificateIssueRequest.phoneNo());
         String ipAddress = request.getRemoteAddr();
         String userAgent = request.getHeader(USER_AGENT);
         return ApiResponseUtil.success(SuccessCode.OK, certificateService.issueCertificate(certificateIssueRequest, ipAddress, userAgent));

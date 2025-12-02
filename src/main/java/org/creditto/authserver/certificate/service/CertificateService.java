@@ -28,7 +28,6 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -156,125 +155,6 @@ public class CertificateService {
                 .orElseThrow(() -> new CertificateNotFoundException(CERTIFICATE_NOT_FOUND));
 
         return Map.of(CERTIFICATE_SERIAL, certificate.getSerialNumber());
-    }
-
-
-    public List<CertificateUsageHistory> getCertificateHistory(String serialNumber, String simplePassword) {
-        Certificate certificate = getCertificateBySerialNumber(serialNumber);
-        try {
-            if (verifyCertificateKeyPair(simplePassword, certificate)) {
-                recordUsageHistory(certificate, HistoryAction.READ, true, null, "", "");
-                return certificateUsageHistoryRepository.findByCertificate(certificate);
-            } else {
-                recordUsageHistory(certificate, HistoryAction.READ, false, null, "", "");
-                throw new InvalidSimplePasswordException(CERTIFICATE_AUTH_FAILED);
-            }
-        } catch (GeneralSecurityException e) {
-            throw new InvalidSimplePasswordException(CERTIFICATE_AUTH_FAILED);
-        }
-    }
-
-    /**
-     * 사용자 인증서 목록 조회
-     */
-    public List<Certificate> getUserCertificates(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND));
-
-        return certificateRepository.findByUser(user);
-    }
-
-    /**
-     * 활성 인증서 목록 조회
-     */
-    public Certificate getActiveCertificates(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND));
-
-        return certificateRepository.findByUserAndStatus(user, CertificateStatus.ACTIVE)
-                .orElseThrow(() -> new CertificateNotFoundException(CERTIFICATE_NOT_FOUND));
-    }
-
-    /**
-     * 인증서 폐기
-     */
-    @Transactional
-    public void revokeCertificate(String serialNumber, String simplePassword, String reason) {
-        Certificate certificate = getCertificateBySerialNumber(serialNumber);
-        try {
-            if (verifyCertificateKeyPair(simplePassword, certificate)) {
-                certificate.revoke(reason);
-                certificateRepository.save(certificate);
-                log.info("인증서 폐기 완료 - 일련번호: {}, 사유: {}", serialNumber, reason);
-            } else {
-                throw new InvalidSimplePasswordException(CERTIFICATE_AUTH_FAILED);
-            }
-        } catch (GeneralSecurityException e) {
-            throw new InvalidSimplePasswordException(CERTIFICATE_AUTH_FAILED);
-        }
-    }
-
-    /**
-     * 인증서 상세 조회
-     */
-    public Certificate getCertificate(String serialNumber, String simplePassword) {
-        Certificate certificate = getCertificateBySerialNumber(serialNumber);
-        try {
-            if (verifyCertificateKeyPair(simplePassword, certificate)) {
-                return certificate;
-            } else {
-                throw new InvalidSimplePasswordException(CERTIFICATE_AUTH_FAILED);
-            }
-        } catch (GeneralSecurityException e) {
-            throw new InvalidSimplePasswordException(CERTIFICATE_AUTH_FAILED);
-        }
-    }
-
-    /**
-     * 활성 인증서 개수 조회
-     */
-    public long countActiveCertificates(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(USER_NOT_FOUND));
-
-        return certificateRepository.countByUserAndStatus(user, CertificateStatus.ACTIVE);
-    }
-
-    /**
-     * 인증서 갱신
-     */
-    @Transactional
-    public CertificateIssueResponse renewCertificate(String oldSerialNumber, String simplePassword) {
-        // 기존 인증서 조회 및 검증
-        Certificate oldCertificate = getCertificateBySerialNumber(oldSerialNumber);
-
-        User user = oldCertificate.getUser();
-
-        // 새 RSA 키 쌍 생성
-        KeyPair keyPair = encryptionUtil.generateRSAKeyPair();
-
-        // 새 인증서별 SALT 생성
-        String certificateSalt = AESUtil.generateSalt();
-
-        // 개인키를 간편비밀번호로 암호화
-        String encryptedPrivateKey = encryptionUtil.encryptPrivateKey(
-                keyPair.getPrivate(),
-                simplePassword,
-                certificateSalt
-        );
-
-        Certificate newCertificate = createCertificate(keyPair, user, encryptedPrivateKey, certificateSalt);
-
-        certificateRepository.save(newCertificate);
-
-        // 기존 인증서 폐기
-        oldCertificate.revoke("인증서 갱신");
-        certificateRepository.save(oldCertificate);
-
-        log.info("인증서 갱신 완료 - 사용자: {}, 기존: {}, 신규: {}",
-                user.getName(), oldSerialNumber, newCertificate.getSerialNumber());
-
-        return CertificateIssueResponse.from(newCertificate);
     }
 
     private Certificate createCertificate(KeyPair keyPair, User user, String encryptedPrivateKey, String certificateSalt) {

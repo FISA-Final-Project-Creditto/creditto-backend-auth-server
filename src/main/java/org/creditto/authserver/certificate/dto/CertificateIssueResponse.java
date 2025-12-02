@@ -10,15 +10,13 @@ import java.time.LocalDateTime;
 public record CertificateIssueResponse(
         String serialNumber,
         LocalDateTime issuedAt,
-        LocalDateTime expiresAt,
-        String publicKey
+        LocalDateTime expiresAt
 ) {
     public static CertificateIssueResponse from(Certificate certificate) {
         return CertificateIssueResponse.builder()
                 .serialNumber(certificate.getSerialNumber())
                 .issuedAt(certificate.getIssuedAt())
                 .expiresAt(certificate.getExpiresAt())
-                .publicKey(certificate.getPublicKey())
                 .build();
     }
 }
