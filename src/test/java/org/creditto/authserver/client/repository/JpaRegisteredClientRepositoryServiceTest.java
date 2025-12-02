@@ -36,11 +36,12 @@ class JpaRegisteredClientRepositoryServiceTest {
 
     @BeforeEach
     void setUp() {
+        Instant fixedInstant = Instant.parse("2024-01-01T10:00:00Z");
         registeredClient = RegisteredClient.withId("registered-client-id")
                 .clientId("client-id")
                 .clientSecret("secret")
-                .clientIdIssuedAt(Instant.now())
-                .clientSecretExpiresAt(Instant.now().plusSeconds(3600))
+                .clientIdIssuedAt(fixedInstant)
+                .clientSecretExpiresAt(fixedInstant.plusSeconds(3600))
                 .clientName("테스트 클라이언트")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)

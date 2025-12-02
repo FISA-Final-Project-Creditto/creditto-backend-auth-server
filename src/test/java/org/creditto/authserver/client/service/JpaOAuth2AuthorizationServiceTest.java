@@ -55,7 +55,7 @@ class JpaOAuth2AuthorizationServiceTest {
                 .tokenSettings(TokenSettings.builder().reuseRefreshTokens(true).build())
                 .build();
 
-        Instant issuedAt = Instant.now();
+        Instant issuedAt = Instant.parse("2024-01-01T10:00:00Z");
         OAuth2AccessToken token = new OAuth2AccessToken(
                 OAuth2AccessToken.TokenType.BEARER,
                 "access-token",

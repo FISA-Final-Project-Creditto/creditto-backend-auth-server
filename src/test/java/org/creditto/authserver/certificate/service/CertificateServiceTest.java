@@ -146,8 +146,8 @@ class CertificateServiceTest {
                 Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()),
                 "encrypted-key",
                 "salt",
-                LocalDateTime.now(),
-                LocalDateTime.now().plusYears(1)
+                LocalDateTime.of(2024, 1, 1, 12, 0),
+                LocalDateTime.of(2024, 1, 1, 12, 0).plusYears(1)
         );
 
         when(certificateRepository.findBySerialNumber("serial-123")).thenReturn(Optional.of(certificate));
