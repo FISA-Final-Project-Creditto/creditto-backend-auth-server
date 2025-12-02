@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,11 +16,7 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     @Query("SELECT ctf FROM Certificate ctf JOIN FETCH ctf.user WHERE ctf.serialNumber = :serial")
     Optional<Certificate> findBySerialNumber(@Param("serial") String serialNumber);
 
-    List<Certificate> findByUser(User user);
-
     Optional<Certificate> findByUserAndStatus(User user, CertificateStatus status);
-
-    long countByUserAndStatus(User user, CertificateStatus status);
 
     boolean existsCertificateByStatusAndUser(CertificateStatus status, User user);
 }
