@@ -62,21 +62,22 @@ public class LogAspect {
             log.info("[{}] {} {} - RequestBody: {}", className, method, requestUri, argsAsString);
         }
 
-        final Object result = joinPoint.proceed();
-
-        Object responseBody = result;
-        if (result instanceof ResponseEntity<?> responseEntity) {
-            responseBody = responseEntity.getBody();
+        try {
+            final Object result = joinPoint.proceed();
+            Object responseBody = result;
+            if (result instanceof ResponseEntity<?> responseEntity) {
+                responseBody = responseEntity.getBody();
+            }
+            final Object dataForLog = responseBody instanceof BaseResponse<?> baseResponse
+                    ? baseResponse.getData()
+                    : responseBody;
+            final String responseAsString = MaskingUtil.maskSensitiveData(serialize(dataForLog));
+            log.info("[{}] {} {} - ResponseData: {}", className, method, requestUri, responseAsString);
+            return result;
+        } catch (Throwable e) {
+            log.error("[{}] {} {} - Exception occurred : {}", className, method, requestUri, e.getMessage());
+            throw e;
         }
-
-        final Object dataForLog = responseBody instanceof BaseResponse<?> baseResponse
-                ? baseResponse.getData()
-                : responseBody;
-
-        final String responseAsString = MaskingUtil.maskSensitiveData(serialize(dataForLog));
-        log.info("[{}] {} {} - ResponseData: {}", className, method, requestUri, responseAsString);
-
-        return result;
     }
 
     @Before("onService()")
