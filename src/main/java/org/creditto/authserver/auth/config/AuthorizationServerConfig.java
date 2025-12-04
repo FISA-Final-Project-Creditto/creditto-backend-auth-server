@@ -117,10 +117,12 @@ public class AuthorizationServerConfig {
                         .requestMatchers("/api/certificate/**").permitAll()
                         .requestMatchers("/api/client/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/info").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/user/**", "/api/certificate/**", "/api/client/**", "/api/auth/token/refresh")
+                        .ignoringRequestMatchers("/api/user/**", "/api/certificate/**", "/api/client/**", "/api/auth/token/refresh", "/actuator/**")
                 )
                 .cors(Customizer.withDefaults())
                 .exceptionHandling(exceptions -> exceptions
