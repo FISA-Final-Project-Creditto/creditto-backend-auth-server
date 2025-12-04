@@ -1,7 +1,9 @@
 package org.creditto.authserver.client.repository;
 
-import org.creditto.authserver.client.entity.OAuth2RegisteredClient;
-import org.creditto.authserver.client.entity.RegisteredClientMapper;
+import org.creditto.authserver.domain.client.entity.OAuth2RegisteredClient;
+import org.creditto.authserver.domain.client.entity.RegisteredClientMapper;
+import org.creditto.authserver.domain.client.repository.JpaRegisteredClientRepositoryService;
+import org.creditto.authserver.domain.client.repository.OAuth2RegisteredClientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

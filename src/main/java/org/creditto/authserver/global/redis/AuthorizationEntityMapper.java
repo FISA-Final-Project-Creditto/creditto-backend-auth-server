@@ -3,7 +3,7 @@ package org.creditto.authserver.global.redis;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.creditto.authserver.client.entity.OAuth2AuthorizationEntity;
+import org.creditto.authserver.domain.client.entity.OAuth2AuthorizationEntity;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;

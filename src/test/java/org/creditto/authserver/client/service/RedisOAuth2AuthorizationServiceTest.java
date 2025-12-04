@@ -1,5 +1,6 @@
 package org.creditto.authserver.client.service;
 
+import org.creditto.authserver.domain.client.service.RedisOAuth2AuthorizationService;
 import org.creditto.authserver.global.redis.AuthorizationEntityMapper;
 import org.creditto.authserver.global.redis.AuthorizationKeyManager;
 import org.creditto.authserver.global.redis.AuthorizationRedisRepository;
