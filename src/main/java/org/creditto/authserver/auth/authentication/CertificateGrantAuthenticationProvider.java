@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.creditto.authserver.auth.constants.ClaimConstants;
 import org.creditto.authserver.auth.jwt.CertificateOAuth2TokenGenerator;
+import org.creditto.authserver.auth.token.service.RefreshTokenService;
 import org.creditto.authserver.certificate.entity.Certificate;
 import org.creditto.authserver.certificate.service.CertificateService;
 import org.creditto.authserver.user.entity.User;
@@ -40,6 +41,7 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
     private final RegisteredClientRepository registeredClientRepository;
     private final OAuth2AuthorizationService authorizationService;
     private final CertificateOAuth2TokenGenerator tokenGenerator;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -53,7 +55,8 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
         // 2. 인증서 기반 인증 수행
         String certificateSerial = certificateToken.getCertificateSerial();
         String simplePassword = certificateToken.getCredentials();
-        Certificate certificate = authenticateWithCertificate(certificateToken, certificateSerial, simplePassword);
+        RequestClientInfo clientInfo = extractClientInfo(certificateToken);
+        Certificate certificate = authenticateWithCertificate(certificateSerial, simplePassword, clientInfo);
         User user = certificate.getUser();
 
         // 3. Principal 생성 (OAuth2ClientAuthenticationToken 생성) / 인증된 주체 정보
@@ -80,6 +83,7 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
 
         if (refreshToken != null) {
             authorizationBuilder.refreshToken(refreshToken);
+            refreshTokenService.store(user, certificate, registeredClient, refreshToken, clientInfo);
         }
 
         // 8. OAuth2Authorization 저장
@@ -115,21 +119,22 @@ public class CertificateGrantAuthenticationProvider implements AuthenticationPro
 
     /**
      * 인증서 기반 인증
-     * @param certificateToken 인증 객체 (Authorization)
      * @param certificateSerial 인증서 SerialNumber
      * @param simplePassword 인증서 간편 비밀번호
      * @return Certificate
      */
-    private Certificate authenticateWithCertificate(CertificateAuthenticationToken certificateToken, String certificateSerial, String simplePassword) {
-        String ipAddress = null;
-        String userAgent = null;
+    private Certificate authenticateWithCertificate(String certificateSerial, String simplePassword, RequestClientInfo clientInfo) {
+        String ipAddress = clientInfo != null ? clientInfo.ipAddress() : null;
+        String userAgent = clientInfo != null ? clientInfo.userAgent() : null;
+        return certificateService.authenticateWithCertificate(certificateSerial, simplePassword, ipAddress, userAgent);
+    }
+
+    private RequestClientInfo extractClientInfo(CertificateAuthenticationToken certificateToken) {
         Object details = certificateToken.getDetails();
         if (details instanceof RequestClientInfo info) {
-            ipAddress = info.ipAddress();
-            userAgent = info.userAgent();
+            return info;
         }
-
-        return certificateService.authenticateWithCertificate(certificateSerial, simplePassword, ipAddress, userAgent);
+        return null;
     }
 
     /**
