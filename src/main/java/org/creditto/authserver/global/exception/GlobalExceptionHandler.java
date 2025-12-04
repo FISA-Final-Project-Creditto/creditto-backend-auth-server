@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.creditto.authserver.auth.token.exception.InvalidRefreshTokenException;
 import org.creditto.authserver.global.response.ApiResponseUtil;
 import org.creditto.authserver.global.response.BaseResponse;
 import org.creditto.authserver.global.response.error.ErrorBaseCode;
@@ -151,6 +152,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<BaseResponse<Void>> handleInvalidBearerTokenException(final InvalidBearerTokenException e) {
         log.error("유효하지 않은 Bearer 토큰: {}", e.getMessage());
         return ApiResponseUtil.failure(ErrorBaseCode.EXPIRED_TOKEN, e.getMessage());
+    }
+
+    /**
+     * 401 - Refresh Token 오류
+     */
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<BaseResponse<Void>> handleRefreshTokenException(final RuntimeException e) {
+        logWarn(e);
+        return ApiResponseUtil.failure(ErrorBaseCode.INVALID_REFRESH_TOKEN, e.getMessage());
     }
 
     /**
