@@ -1,7 +1,6 @@
 package org.creditto.authserver.global.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.creditto.authserver.client.entity.OAuth2AuthorizationEntity;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -16,7 +15,7 @@ public class AuthorizationRedisRepository {
 
     private final StringRedisTemplate redisTemplate;
     private final AuthorizationKeyManager keyManager;
-    private final ObjectMapper entityObjectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final ObjectMapper entityObjectMapper;
 
     public void saveAuthorization(OAuth2AuthorizationEntity entity, Duration ttl) {
         redisTemplate.opsForValue().set(

@@ -12,16 +12,12 @@ public record ManualAuthorizationServerContext(
 ) implements AuthorizationServerContext {
 
     public ManualAuthorizationServerContext(AuthorizationServerSettings authorizationServerSettings) {
-        this(resolveIssuer(authorizationServerSettings), authorizationServerSettings);
-    }
-
-    private static String resolveIssuer(AuthorizationServerSettings settings) {
-        return settings.getIssuer();
+        this(authorizationServerSettings.getIssuer(), authorizationServerSettings);
     }
 
     @Override
     public String getIssuer() {
-        return resolveIssuer(authorizationServerSettings);
+        return authorizationServerSettings.getIssuer();
     }
 
     @Override

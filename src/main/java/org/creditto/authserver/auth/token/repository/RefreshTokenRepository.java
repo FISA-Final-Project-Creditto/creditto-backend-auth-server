@@ -23,7 +23,7 @@ public class RefreshTokenRepository {
     private static final Duration MIN_TTL = Duration.ofSeconds(1);
 
     private final StringRedisTemplate redisTemplate;
-    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final ObjectMapper objectMapper;
 
     public void save(RefreshTokenSession session) {
         Duration ttl = calculateTtl(session.expiresAt());
