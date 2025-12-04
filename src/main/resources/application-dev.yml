@@ -1,4 +1,11 @@
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3s
+
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -31,6 +38,10 @@ auth:
   jwt:
     private-key-path: ${JWT_PRIVATE_KEY_PATH}
     public-key-path: ${JWT_PUBLIC_KEY_PATH}
+  token:
+    refresh-ttl: ${AUTH_REFRESH_TOKEN_TTL}
+  jwk:
+    cache-ttl: ${AUTH_JWK_CACHE_TTL}
 
 management:
   tracing:
