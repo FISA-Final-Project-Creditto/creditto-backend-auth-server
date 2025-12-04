@@ -8,12 +8,16 @@ import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.creditto.authserver.auth.authentication.CertificateGrantAuthenticationConverter;
 import org.creditto.authserver.auth.authentication.CertificateGrantAuthenticationProvider;
+import org.creditto.authserver.auth.jwk.CachedJwkSetEndpointFilter;
+import org.creditto.authserver.auth.jwk.JwkCacheService;
 import org.creditto.authserver.auth.jwt.CertificateOAuth2TokenGenerator;
 import org.creditto.authserver.auth.jwt.RsaKeyProperties;
 import org.creditto.authserver.auth.jwt.RsaKeyUtil;
+import org.creditto.authserver.auth.token.service.RefreshTokenService;
 import org.creditto.authserver.certificate.service.CertificateService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -112,10 +116,13 @@ public class AuthorizationServerConfig {
                         .requestMatchers("/api/user/**").permitAll()
                         .requestMatchers("/api/certificate/**").permitAll()
                         .requestMatchers("/api/client/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/info").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/user/**", "/api/certificate/**", "/api/client/**")
+                        .ignoringRequestMatchers("/api/user/**", "/api/certificate/**", "/api/client/**", "/api/auth/token/refresh", "/actuator/**")
                 )
                 .cors(Customizer.withDefaults())
                 .exceptionHandling(exceptions -> exceptions
@@ -177,18 +184,37 @@ public class AuthorizationServerConfig {
             CertificateService certificateService,
             RegisteredClientRepository registeredClientRepository,
             OAuth2AuthorizationService authorizationService,
-            CertificateOAuth2TokenGenerator certificateTokenGenerator
+            CertificateOAuth2TokenGenerator certificateTokenGenerator,
+            RefreshTokenService refreshTokenService
     ) {
         return new CertificateGrantAuthenticationProvider(
                 certificateService,
                 registeredClientRepository,
                 authorizationService,
-                certificateTokenGenerator
+                certificateTokenGenerator,
+                refreshTokenService
         );
     }
 
     // MVC 예외 위임
     private void handleTokenError(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) {
         handlerExceptionResolver.resolveException(request, response, null, exception);
+    }
+
+    @Bean
+    public FilterRegistrationBean<CachedJwkSetEndpointFilter> cachedJwkSetEndpointFilter(
+            JWKSource<SecurityContext> jwkSource,
+            JwkCacheService jwkCacheService,
+            AuthorizationServerSettings authorizationServerSettings
+    ) {
+        CachedJwkSetEndpointFilter filter = new CachedJwkSetEndpointFilter(
+                jwkSource,
+                jwkCacheService,
+                authorizationServerSettings.getJwkSetEndpoint()
+        );
+        FilterRegistrationBean<CachedJwkSetEndpointFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setOrder(0);
+        registration.addUrlPatterns(authorizationServerSettings.getJwkSetEndpoint());
+        return registration;
     }
 }

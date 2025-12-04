@@ -30,6 +30,7 @@ public enum ErrorBaseCode implements ErrorCode {
     OAUTH_INVALID_CLIENT_CREDENTIALS(HttpStatus.UNAUTHORIZED, 40102, "유효하지 않은 증명입니다."),
     OAUTH_INVALID_GRANT_TYPE(HttpStatus.UNAUTHORIZED, 40103, "유효하지 않은 Grant Type 입니다."),
     INVALID_SIMPLE_PASSWORD(HttpStatus.UNAUTHORIZED, 40104, "잘못된 간편비밀번호입니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, 40105, "유효하지 않은 Refresh Token 입니다."),
 
 
     /**

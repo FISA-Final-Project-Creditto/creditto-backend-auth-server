@@ -6,9 +6,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AssertErrorMessage {
 
-    public static final String AUTHORIZATION_REPOSITORY_NULL = "AuthorizationRepository는 null일 수 없습니다.";
-    public static final String REGISTERED_CLIENT_REPOSITORY_NULL = "registeredClientRepository는 null일 수 없습니다.";
-    public static final String AUTHORIZATION_NULL = "authorization는 null일 수 없습니다.";
     public static final String ID_EMPTY = "id가 비어있습니다.";
     public static final String TOKEN_EMPTY = "token이 비어있습니다.";
 
