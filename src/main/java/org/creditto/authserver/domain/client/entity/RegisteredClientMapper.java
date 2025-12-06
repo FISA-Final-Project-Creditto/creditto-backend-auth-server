@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.creditto.authserver.auth.constants.SettingsConstants;
-import org.creditto.authserver.client.entity.sub.*;
 import org.creditto.authserver.domain.client.entity.sub.*;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;

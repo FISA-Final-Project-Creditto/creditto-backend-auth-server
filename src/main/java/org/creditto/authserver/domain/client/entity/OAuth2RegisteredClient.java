@@ -2,7 +2,6 @@ package org.creditto.authserver.domain.client.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.creditto.authserver.client.entity.sub.*;
 import org.creditto.authserver.domain.client.entity.sub.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
