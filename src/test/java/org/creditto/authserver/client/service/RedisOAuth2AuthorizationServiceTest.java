@@ -45,6 +45,7 @@ class RedisOAuth2AuthorizationServiceTest {
     @Mock
     private ValueOperations<String, String> valueOperations;
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().findAndRegisterModules();
     private RedisOAuth2AuthorizationService service;
     private RegisteredClient registeredClient;
     private OAuth2Authorization authorization;
@@ -53,8 +54,7 @@ class RedisOAuth2AuthorizationServiceTest {
     void setUp() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         AuthorizationKeyManager keyManager = new AuthorizationKeyManager();
-        ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-        AuthorizationRedisRepository repository = new AuthorizationRedisRepository(redisTemplate, keyManager, objectMapper);
+        AuthorizationRedisRepository repository = new AuthorizationRedisRepository(redisTemplate, keyManager, OBJECT_MAPPER);
         AuthorizationEntityMapper mapper = new AuthorizationEntityMapper(registeredClientRepository);
         AuthorizationTtlPolicy ttlPolicy = new AuthorizationTtlPolicy(Duration.ofHours(1));
         service = new RedisOAuth2AuthorizationService(repository, mapper, keyManager, ttlPolicy);
