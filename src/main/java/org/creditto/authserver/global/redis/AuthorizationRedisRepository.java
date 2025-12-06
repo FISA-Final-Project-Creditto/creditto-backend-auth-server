@@ -2,7 +2,7 @@ package org.creditto.authserver.global.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.creditto.authserver.client.entity.OAuth2AuthorizationEntity;
+import org.creditto.authserver.domain.client.entity.OAuth2AuthorizationEntity;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;

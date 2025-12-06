@@ -1,6 +1,7 @@
 package org.creditto.authserver.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.creditto.authserver.domain.client.service.RedisOAuth2AuthorizationService;
 import org.creditto.authserver.global.redis.AuthorizationEntityMapper;
 import org.creditto.authserver.global.redis.AuthorizationKeyManager;
 import org.creditto.authserver.global.redis.AuthorizationRedisRepository;

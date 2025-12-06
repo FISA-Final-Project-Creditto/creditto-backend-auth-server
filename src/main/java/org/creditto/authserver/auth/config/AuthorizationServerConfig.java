@@ -14,7 +14,7 @@ import org.creditto.authserver.auth.jwt.CertificateOAuth2TokenGenerator;
 import org.creditto.authserver.auth.jwt.RsaKeyProperties;
 import org.creditto.authserver.auth.jwt.RsaKeyUtil;
 import org.creditto.authserver.auth.token.service.RefreshTokenService;
-import org.creditto.authserver.certificate.service.CertificateService;
+import org.creditto.authserver.domain.certificate.service.CertificateService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

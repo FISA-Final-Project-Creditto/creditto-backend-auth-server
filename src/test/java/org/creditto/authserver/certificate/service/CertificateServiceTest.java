@@ -1,16 +1,18 @@
 package org.creditto.authserver.certificate.service;
 
 import org.creditto.authserver.auth.utils.CertificateEncryptionUtil;
-import org.creditto.authserver.certificate.dto.CertificateIssueRequest;
-import org.creditto.authserver.certificate.dto.CertificateSerialRequest;
-import org.creditto.authserver.certificate.entity.Certificate;
-import org.creditto.authserver.certificate.entity.CertificateUsageHistory;
-import org.creditto.authserver.certificate.enums.CertificateStatus;
-import org.creditto.authserver.certificate.repository.CertificateRepository;
-import org.creditto.authserver.certificate.repository.CertificateUsageHistoryRepository;
+import org.creditto.authserver.domain.certificate.dto.CertificateIssueRequest;
+import org.creditto.authserver.domain.certificate.dto.CertificateSerialRequest;
+import org.creditto.authserver.domain.certificate.entity.Certificate;
+import org.creditto.authserver.domain.certificate.entity.CertificateUsageHistory;
+import org.creditto.authserver.domain.certificate.enums.CertificateStatus;
+import org.creditto.authserver.domain.certificate.repository.CertificateRepository;
+import org.creditto.authserver.domain.certificate.repository.CertificateUsageHistoryRepository;
+import org.creditto.authserver.domain.certificate.service.CertificateService;
+import org.creditto.authserver.domain.user.dto.UserRegisterRequest;
 import org.creditto.authserver.global.exception.InvalidSimplePasswordException;
-import org.creditto.authserver.user.entity.User;
-import org.creditto.authserver.user.repository.UserRepository;
+import org.creditto.authserver.domain.user.entity.User;
+import org.creditto.authserver.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -71,7 +73,7 @@ class CertificateServiceTest {
 
         certificateSerialRequest = new CertificateSerialRequest("홍길동", "010-7777-8888");
 
-        registerUser = User.create(new org.creditto.authserver.user.dto.UserRegisterRequest(
+        registerUser = User.create(new UserRegisterRequest(
                 "홍길동",
                 LocalDate.of(1990, 1, 1),
                 "KR",
@@ -80,7 +82,7 @@ class CertificateServiceTest {
         ));
         ReflectionTestUtils.setField(registerUser, "id", 1L);
 
-        authUser = User.create(new org.creditto.authserver.user.dto.UserRegisterRequest(
+        authUser = User.create(new UserRegisterRequest(
                 "홍길동",
                 LocalDate.of(1990, 1, 1),
                 "KR",
@@ -89,7 +91,7 @@ class CertificateServiceTest {
         ));
         ReflectionTestUtils.setField(authUser, "id", 2L);
 
-        invalidAuthUser = User.create(new org.creditto.authserver.user.dto.UserRegisterRequest(
+        invalidAuthUser = User.create(new UserRegisterRequest(
                 "홍길동",
                 LocalDate.of(1990, 1, 1),
                 "KR",
@@ -98,7 +100,7 @@ class CertificateServiceTest {
         ));
         ReflectionTestUtils.setField(invalidAuthUser, "id", 3L);
 
-        serialLookupUser = User.create(new org.creditto.authserver.user.dto.UserRegisterRequest(
+        serialLookupUser = User.create(new UserRegisterRequest(
                 "홍길동",
                 LocalDate.of(1990, 1, 1),
                 "KR",

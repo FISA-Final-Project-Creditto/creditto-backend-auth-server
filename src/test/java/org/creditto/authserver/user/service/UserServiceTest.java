@@ -1,9 +1,10 @@
 package org.creditto.authserver.user.service;
 
-import org.creditto.authserver.user.dto.UserRegisterRequest;
-import org.creditto.authserver.user.dto.UserResponse;
-import org.creditto.authserver.user.entity.User;
-import org.creditto.authserver.user.repository.UserRepository;
+import org.creditto.authserver.domain.user.dto.UserRegisterRequest;
+import org.creditto.authserver.domain.user.dto.UserResponse;
+import org.creditto.authserver.domain.user.entity.User;
+import org.creditto.authserver.domain.user.repository.UserRepository;
+import org.creditto.authserver.domain.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
